@@ -1,0 +1,1881 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구매대행 장부</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>document.documentElement.dataset.theme='dark';try{const t=localStorage.getItem('gmdh-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+:root{
+  --bg:#f2f4f6; --surface:#fff; --surface2:#f9fafb; --fill:#f2f4f6; --line:#e5e8eb; --text:#191f28; --sub:#4e5968; --muted:#8b95a1;
+  --accent:#3182f6; --accent-weak:#e8f3ff; --pos:#00a661; --neg:#f04452; --warn:#e5850a; --warn-weak:#fff3e0;
+  --shadow:0 2px 8px rgba(0,27,55,.05); --r:20px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;
+  --bg:#101013; --surface:#1b1b20; --surface2:#222228; --fill:#2a2a32; --line:#2e2e36; --text:#f2f2f5; --sub:#c3c3c9; --muted:#8d8d95;
+  --accent:#4593fc; --accent-weak:#1a2a44; --pos:#2fca86; --neg:#ff5a67; --warn:#ffb24a; --warn-weak:#33260f; --shadow:none;
+}}
+:root[data-theme=dark]{color-scheme:dark;
+  --bg:#101013; --surface:#1b1b20; --surface2:#222228; --fill:#2a2a32; --line:#2e2e36; --text:#f2f2f5; --sub:#c3c3c9; --muted:#8d8d95;
+  --accent:#4593fc; --accent-weak:#1a2a44; --pos:#2fca86; --neg:#ff5a67; --warn:#ffb24a; --warn-weak:#33260f; --shadow:none;
+}
+:root[data-theme=light]{color-scheme:light}
+*{box-sizing:border-box}
+
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;font-size:16px;line-height:1.5;letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+.wrap{max-width:1440px;margin:0 auto;padding:32px 24px 80px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+h1{font-size:28px;margin:0;font-weight:800;letter-spacing:-.03em}
+.apptabs{display:flex;gap:26px;align-items:baseline}
+.apptab{border:none;background:none;padding:0;cursor:pointer;font:inherit;color:var(--muted);transition:color .15s}
+.apptab:hover{color:var(--sub)}
+.apptab.on{color:var(--text)}
+.meta{margin:-8px 0 20px;display:flex;align-items:center;flex-wrap:wrap;gap:4px 0}
+.meta .ledger{margin-left:0}
+.meta .src{flex-basis:100%}
+.filechip{border:none;cursor:pointer;margin-left:8px;padding:6px 14px;border-radius:999px;font-size:15px;font-weight:700;background:var(--fill);color:var(--sub)}
+.filechip.ok{background:rgba(0,166,97,.12);color:var(--pos)}
+.filechip.warn{background:var(--warn-weak);color:var(--warn)}
+body[data-app=calc] .ledger-only,body[data-app=ledger] .calc-only{display:none!important}
+body:not([data-app=items]) .items-only,body[data-app=items] .ledger-only,body[data-app=items] .calc-only{display:none!important}
+h1 small{font-size:14px;color:var(--muted);font-weight:500;margin-left:10px;letter-spacing:0}
+.btn{border:none;background:var(--fill);color:var(--sub);height:48px;padding:0 20px;border-radius:14px;cursor:pointer;white-space:nowrap;font-size:16px;font-weight:700;transition:filter .15s}
+header .btn:not(.primary),.filters .btn{background:var(--surface);box-shadow:var(--shadow)}
+.btn:hover{filter:brightness(.96)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.sm{height:38px;padding:0 14px;font-size:14px;border-radius:10px}
+.btn.danger{color:var(--neg)}
+.theme-btn{width:48px;padding:0;font-size:18px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.ledger{display:inline-flex;align-items:center;gap:6px;margin-left:12px;padding:6px 14px;border-radius:999px;background:var(--accent-weak);color:var(--accent);font-size:15px;font-weight:700;border:none;cursor:pointer;vertical-align:middle;letter-spacing:-.01em}
+.ledger.test{background:var(--warn-weak);color:var(--warn)}
+.src{display:block;font-size:14px;color:var(--muted);font-weight:500;margin-top:6px}
+.notice{background:var(--warn-weak);color:var(--warn);border-radius:14px;padding:14px 18px;font-size:15px;font-weight:600;margin-bottom:16px;display:none}
+.notice.show{display:block}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:28px}
+.kpi{background:var(--surface);border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow)}
+.kpi .l{font-size:15px;color:var(--sub);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .v{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:6px;letter-spacing:-.03em;line-height:1.25}
+.kpi.hl{background:var(--accent);color:#fff}
+.kpi.hl .l{color:rgba(255,255,255,.85)}
+.big .kpi.hl .sub{color:rgba(255,255,255,.8)!important}
+.tabs{display:flex;gap:28px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.tab{padding:12px 2px 14px;border:none;background:none;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;font-weight:700;font-size:20px;letter-spacing:-.02em}
+.tab.on{color:var(--text);border-color:var(--text)}
+.panel{display:none}.panel.on{display:block}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.filters input,.filters select{border:none;background:var(--surface);border-radius:12px;height:46px;padding:0 14px;font-size:16px;font-weight:500;box-shadow:var(--shadow)}
+.filters input[type=search]{min-width:280px;flex:1;max-width:420px}
+.filters label{font-size:15px;color:var(--sub);font-weight:600;display:flex;align-items:center;gap:8px}
+.filters input[type=checkbox]{width:20px;height:20px;box-shadow:none;accent-color:var(--accent)}
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:16px 16px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+td{font-size:16px}
+th{background:var(--surface);font-size:14px;color:var(--muted);font-weight:600;position:sticky;top:0;cursor:pointer;user-select:none;padding-top:18px;padding-bottom:12px}
+td.n,th.n{text-align:right}
+tbody tr{transition:background .1s}
+tbody tr:hover{background:var(--surface2)}
+tbody tr:last-child td{border-bottom:none}
+tfoot td{font-weight:800;background:var(--surface2);font-size:17px;border-bottom:none}
+.pos{color:var(--pos)}.neg{color:var(--neg)}
+.trunc{max-width:260px;overflow:hidden;text-overflow:ellipsis}
+.ev{display:inline-flex;gap:5px}
+.ev button{width:32px;height:30px;border-radius:8px;border:none;background:var(--fill);font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);padding:0}
+.ev button.ok{background:var(--accent);color:#fff}
+.store-tag{font-size:13px;padding:4px 10px;border-radius:999px;background:var(--accent-weak);color:var(--accent);font-weight:700}
+.empty{padding:64px;text-align:center;color:var(--muted);font-size:17px}
+.muted{color:var(--muted)}
+/* dialog */
+dialog{border:none;border-radius:28px;padding:0;width:min(980px,96vw);background:var(--surface);color:var(--text);box-shadow:0 24px 80px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dh{display:flex;justify-content:space-between;align-items:center;padding:26px 30px 14px}
+.dh h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.03em}
+.db{padding:8px 30px 20px;max-height:72vh;overflow:auto}
+.df{padding:18px 30px 26px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.df .btn{height:54px;padding:0 26px;font-size:17px}
+fieldset{border:none;border-radius:0;padding:0;margin:0 0 28px}
+legend{font-size:18px;font-weight:800;color:var(--text);padding:0;margin-bottom:14px;letter-spacing:-.02em}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 14px}
+.f{display:flex;flex-direction:column;gap:8px}
+.f.s2{grid-column:span 2}.f.s4{grid-column:span 4}
+.f label{font-size:15px;color:var(--sub);font-weight:600}
+.f input,.f select,.f textarea{border:none;background:var(--fill);border-radius:14px;height:56px;padding:0 18px;width:100%;font-size:18px;font-weight:600}
+.f textarea{height:auto;padding:14px 18px;font-weight:500}
+.f input::placeholder,.f textarea::placeholder,.filters input::placeholder{color:var(--muted);font-weight:500}
+.f input:focus,.f textarea:focus,.f select:focus,.filters input:focus,.filters select:focus{outline:2px solid var(--accent);outline-offset:0}
+.f input.num{text-align:right;font-variant-numeric:tabular-nums;font-size:20px;font-weight:700}
+.auto-tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:4px;vertical-align:1px}
+.auto-tag.auto{background:var(--accent-weak);color:var(--accent)}.auto-tag.man{background:var(--warn-weak);color:var(--warn)}
+.f input.krwin{background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line)}
+td .yen{display:block;font-size:13px;color:var(--muted);font-weight:500;margin-top:2px}
+.req::after{content:" *";color:var(--neg)}
+.calc{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;background:var(--accent-weak);border-radius:20px;padding:22px 24px;margin-bottom:28px}
+.calc .l{font-size:15px;color:var(--sub);font-weight:600}
+.calc .v{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.calc .formula{grid-column:span 3;font-size:15px;color:var(--sub)}
+.checks{display:flex;gap:12px;flex-wrap:wrap}
+.checks label{display:flex;gap:10px;align-items:center;cursor:pointer;background:var(--fill);padding:14px 18px;border-radius:14px;font-size:16px;font-weight:600}
+.checks input{width:22px;height:22px;accent-color:var(--accent)}
+.sumgrid{display:grid;grid-template-columns:1fr;gap:16px}
+.sumgrid h3{font-size:20px;font-weight:800;margin:0;padding:22px 20px 10px;letter-spacing:-.02em}
+.sumgrid h3 .muted{font-size:14px!important}
+.sumgrid .full{grid-column:auto}
+.foot{margin-top:28px;font-size:14px;color:var(--muted)}
+/* 마진 계산기 */
+.mc{display:grid;grid-template-columns:minmax(360px,440px) 1fr;gap:20px;align-items:start}
+.mc .card{padding:28px;overflow:visible}
+.mc h3{font-size:22px;font-weight:800;margin:0 0 20px;letter-spacing:-.03em}
+.mc .f{margin-bottom:20px}
+.mc .actions .btn{flex:1;height:54px;font-size:17px}
+.unit{position:relative}.unit input{padding-right:52px}
+.unit span{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:17px;font-weight:600;color:var(--muted);pointer-events:none}
+.seg{display:flex;background:var(--fill);border-radius:14px;padding:4px;gap:4px;margin-bottom:10px}
+.seg label{flex:1;text-align:center;padding:12px;border-radius:11px;cursor:pointer;font-size:16px;font-weight:600;color:var(--muted)}
+.seg input{display:none}.seg label:has(input:checked){background:var(--surface);color:var(--text);font-weight:800;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.big{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.big .kpi{padding:26px 28px}
+.big .kpi .v{font-size:38px}
+.stack{display:flex;height:40px;border-radius:12px;overflow:hidden;margin:4px 0 14px;background:var(--fill)}
+.stack div{transition:width .2s}
+.legend{display:flex;gap:20px;flex-wrap:wrap;font-size:15px;color:var(--sub);font-weight:600}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:7px;vertical-align:-1px}
+.bk td{padding:16px 6px;font-size:17px}.bk td.n{font-weight:700}
+.bk tr.tot td{font-weight:800;font-size:18px;background:var(--surface2)}
+.bk tr:last-child td{font-size:22px;color:inherit}
+.calc-err{color:var(--neg);font-size:17px;font-weight:700;margin:0 0 14px;display:none}
+.krw{font-size:15px;color:var(--accent);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;min-height:22px}
+.big .kpi.hl .sub{color:rgba(255,255,255,.8)}
+.big .kpi .sub{font-size:15px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums;font-weight:600}
+.bk th{position:static;cursor:default;background:none;padding:8px 6px;text-align:right;font-size:14px}.bk th:first-child{text-align:left}
+.bk td.y{text-align:right;color:var(--muted);font-weight:600}
+.toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:14px 24px;border-radius:14px;font-size:16px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.rate-line{font-size:15px!important;margin:10px 0 20px!important}
+@media (max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:900px){
+  .wrap{padding:20px 16px 60px}
+  .mc{grid-template-columns:1fr}.big{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:1fr 1fr}
+  .f.s4{grid-column:span 2}
+  .sumgrid{grid-template-columns:1fr}.sumgrid .full{grid-column:auto}
+  .calc{grid-template-columns:1fr}.calc .formula{grid-column:auto}
+  .tabs{gap:20px}.tab{font-size:18px}
+}
+.filters select,.f select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:48px!important;min-width:150px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238b95a1' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 18px center;background-size:14px}
+.filters select{padding-left:18px}
+#fQuick{min-width:220px}
+
+/* 계산기 결과 영역 재구성 */
+.big{grid-template-columns:1fr!important}
+.big .kpi.hero{display:grid;grid-template-columns:6fr 4fr;gap:0;background:var(--accent);color:#fff;padding:30px 32px}
+.big .kpi.hero.loss{background:var(--neg)}
+.big .kpi.hero .l,.big .kpi.hero .sub{color:rgba(255,255,255,.85)!important}
+.big .kpi.hero .v{font-size:52px;line-height:1.1;margin-top:8px}
+.hero-r{text-align:left;padding-left:32px;border-left:1px solid rgba(255,255,255,.3)}
+.big .kpi .v small{font-size:.5em;font-weight:700;margin-left:3px}
+.big .kpi.price{padding:30px 32px}
+.big .kpi.price .v{font-size:40px;margin-top:8px}
+.card.mini{padding:18px 24px!important}
+.mini-h{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:15px;font-weight:700;color:var(--sub)}
+.mini-h .legend{font-size:13px;gap:14px}
+.card.mini .stack{height:12px;border-radius:6px;margin:12px 0 4px}
+#mDetail summary{cursor:pointer;font-size:15px;font-weight:700;color:var(--muted);padding:10px 0 2px;list-style:none;user-select:none}
+#mDetail summary::-webkit-details-marker{display:none}
+#mDetail summary::after{content:' ▾'}#mDetail[open] summary::after{content:' ▴'}
+#mDetail .bk{margin-top:8px}
+#mDetail .bk td{padding:11px 6px;font-size:15px}
+#mDetail .bk tr:last-child td{font-size:17px}
+@media (max-width:900px){.big{grid-template-columns:1fr!important}.big .kpi.hero .v{font-size:40px}}
+.mc>div:last-child{position:sticky;top:20px}
+@media (max-width:900px){.mc>div:last-child{position:static}}
+.hero-top{grid-column:1/-1;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding-bottom:18px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,.3);font-size:16px;font-weight:600;color:rgba(255,255,255,.85)}
+.hero-top b{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.seg label{white-space:nowrap}
+
+/* 계산기: 입력 가로 배치, 결과 아래 */
+.mc{grid-template-columns:1fr!important}
+.mc>div:last-child{position:static!important}
+.mc-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.mc-head h3{margin:0!important}
+.mc-head .actions .btn{flex:none;height:46px;font-size:16px}
+.mc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 16px}
+.mc-grid .f{margin-bottom:8px!important}
+.mc-grid .mc-target{grid-column:span 2}
+.mc-grid .f:nth-child(8){grid-column:span 2}
+.muted-krw{color:var(--muted)!important}.muted-krw b{color:var(--text)}
+.mc-grid .seg{margin:0}.mc-grid .seg label{padding:15px 8px}
+.hero-top{display:block!important;padding-bottom:22px!important;margin-bottom:22px!important}
+.hero-top .v{font-size:52px!important;line-height:1.1;margin-top:8px;color:#fff}
+.hero-top .sub{margin-top:6px}
+@media (max-width:1100px){.mc-grid{grid-template-columns:1fr 1fr}.mc-grid .mc-target,.mc-grid .f:nth-child(8){grid-column:span 2}}
+@media (max-width:600px){.mc-grid{grid-template-columns:1fr}.mc-grid .mc-target,.mc-grid .f:nth-child(8){grid-column:auto}}
+.mc-grid .f:nth-child(2){order:1}.mc-grid .f:nth-child(3){order:2}.mc-grid .f:nth-child(5){order:3}.mc-grid .f:nth-child(6){order:4}
+.mc-grid .f:nth-child(4){order:5}.mc-grid .f:nth-child(7){order:6}.mc-grid .f:nth-child(1){order:7;grid-column:span 2}
+.mc-grid .f:nth-child(8){order:8}.mc-grid .f:nth-child(9){order:9}
+@media (max-width:600px){.mc-grid .f:nth-child(1){grid-column:auto}}
+.mc-grid .f{order:0!important;grid-column:auto!important}
+.mc-grid .f.mc-target{grid-column:span 2!important}
+.comp-box{min-height:56px;border-radius:14px;background:var(--fill);padding:10px 16px;font-size:15px;font-weight:600;color:var(--sub);display:flex;flex-direction:column;justify-content:center;gap:2px;font-variant-numeric:tabular-nums}
+.comp-box b{color:var(--text)}.comp-box .comp-big{font-size:20px;font-weight:700;color:var(--sub)}.comp-box .comp-big b{font-size:24px;font-weight:800}.comp-box .up{color:var(--neg)}.comp-box .dn{color:var(--pos)}
+@media (max-width:600px){.mc-grid .f.mc-target{grid-column:auto!important}}
+.zone-tag{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;margin-right:6px;vertical-align:1px;letter-spacing:.02em}
+.mine-tag{background:var(--accent);color:#fff}
+.comp-tag{background:var(--warn);color:#fff}
+.mc-grid .f.mine{background:var(--accent-weak);border-radius:14px;padding:10px 14px 4px}
+.mc-grid .f.mine label{color:var(--accent);font-weight:700}
+.mc-grid .f.mine input{box-shadow:inset 0 0 0 2px var(--accent)}
+.mine-result{margin:14px 0 0!important}
+.comp-zone{margin-top:16px;padding:14px 16px 6px;border-radius:16px;background:var(--warn-weak);border:1px dashed var(--warn)}
+.comp-zone-h{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--warn);font-weight:600;margin-bottom:10px}
+.comp-grid{display:grid;grid-template-columns:1fr 1fr 1.4fr 1.6fr;gap:4px 16px}
+.comp-zone .comp-box .comp-big.loss,.comp-zone .comp-box .comp-big.loss b{color:var(--neg)}
+.comp-grid .f{margin-bottom:8px!important}
+.comp-zone .comp-box{background:var(--surface)}
+.comp-zone .comp-box .comp-big,.comp-zone .comp-box .comp-big b{color:var(--warn)}
+@media (max-width:1100px){.comp-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.comp-grid{grid-template-columns:1fr}.comp-grid .comp-total{grid-column:auto}}
+
+/* 판매 리스트 */
+.it-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.it-bar input[type=search]{border:none;background:var(--surface);border-radius:12px;height:48px;padding:0 16px;font-size:16px;min-width:280px;max-width:420px;flex:1;box-shadow:var(--shadow)}
+.it-bar input:focus{outline:2px solid var(--accent)}
+.it-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.it-card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s}
+.it-card:hover{transform:translateY(-2px)}
+.it-img{aspect-ratio:1/1;background:var(--fill);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;overflow:hidden;cursor:pointer}
+.it-img img{width:100%;height:100%;object-fit:cover}
+.it-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+.it-name{font-size:17px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all}
+.it-actions{display:flex;gap:8px;margin-top:auto}
+.it-actions a,.it-actions button{flex:1;height:40px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.it-actions a{background:var(--accent-weak);color:var(--accent)}
+.it-actions a.off{background:var(--fill);color:var(--muted);pointer-events:none}
+.it-actions button{background:var(--fill);color:var(--sub);flex:0 0 64px}
+.it-host{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it-drop{border:2px dashed var(--line);border-radius:16px;min-height:220px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--fill);overflow:hidden;position:relative}
+.it-drop.over{border-color:var(--accent);background:var(--accent-weak)}
+.it-drop img{max-width:100%;max-height:320px;object-fit:contain}
+.it-drop-msg{text-align:center;color:var(--muted);font-size:15px;line-height:1.7}
+.it-drop-msg b{color:var(--accent)}
+#dlgItem .f input{height:52px;font-size:17px}
+.it-price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.it-price b{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.it-price span{font-size:15px;color:var(--muted);font-weight:600}
+.it-actions a.rk{background:#bf0000;color:#fff}
+.it-actions a.ss{background:#03c75a;color:#fff}
+.it-actions a.off{background:var(--fill)!important;color:var(--muted)!important;pointer-events:none}
+.it-actions a{font-size:14px!important;padding:0 6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:0}
+.dot.rk{background:#bf0000}.dot.ss{background:#03c75a}
+.it-actions{display:grid!important;grid-template-columns:1fr 1fr}
+.it-actions a{white-space:nowrap}
+.it-img{position:relative}
+.it-edit{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.55);color:#fff;font-size:13px;font-weight:700;padding:5px 11px;border-radius:999px;opacity:0;transition:opacity .15s}
+.it-card:hover .it-edit{opacity:1}
+@media (hover:none){.it-edit{opacity:1}}
+.it-kv{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-variant-numeric:tabular-nums}
+.it-kv span{font-size:14px;color:var(--muted);font-weight:600}
+.it-kv b{font-size:18px;font-weight:800;letter-spacing:-.02em;text-align:right}
+.it-kv em{font-style:normal;font-size:13px;color:var(--muted);font-weight:600;margin-left:6px}
+.it-kv+.it-kv{margin-top:-4px}
+.save-btn{color:var(--accent)!important;font-weight:800;font-size:16px!important}
+
+/* 판매 리스트: 가로형 리스트 */
+#itGrid{display:block;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.it-row{display:grid;grid-template-columns:88px minmax(200px,1fr) 150px 190px 300px 80px;align-items:center;gap:20px;padding:14px 24px;border-bottom:1px solid var(--line);transition:background .1s}
+.it-row:last-child{border-bottom:none}
+.it-row:not(.it-head):hover{background:var(--surface2)}
+.it-head{padding-top:16px;padding-bottom:12px;font-size:14px;color:var(--muted);font-weight:600}
+.it-row .n{text-align:right}
+.it-thumb{width:88px;height:88px;border-radius:14px;background:var(--fill);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;cursor:pointer}
+.it-thumb img{width:100%;height:100%;object-fit:cover}
+.it-row .it-name{font-size:17px;font-weight:700;line-height:1.45;cursor:pointer;-webkit-line-clamp:2}
+.it-num{display:flex;flex-direction:column;align-items:flex-end;font-variant-numeric:tabular-nums}
+.it-num b{font-size:19px;font-weight:800;letter-spacing:-.02em}
+.it-num em{font-style:normal;font-size:13px;color:var(--muted);font-weight:600}
+.it-row .it-actions{margin:0}
+.it-row .it-actions a{height:44px}
+@media (max-width:1100px){
+  .it-head{display:none}
+  .it-row{grid-template-columns:72px 1fr auto;grid-template-areas:"t n e" "t p j" "a a a";gap:8px 16px}
+  .it-thumb{grid-area:t;width:72px;height:72px}.it-row .it-name{grid-area:n}.it-row>div:last-child{grid-area:e}
+  .it-row>.it-num:nth-of-type(3){grid-area:p;align-items:flex-start}.it-row>.it-num:nth-of-type(4){grid-area:j}
+  .it-row .it-actions{grid-area:a}
+}
+
+/* ===== 플랫폼 탭 (스마트스토어 / BUYMA) ===== */
+.plat{display:inline-flex;gap:4px;background:var(--fill);padding:4px;border-radius:14px;margin-bottom:22px}
+.plat-btn{border:none;background:none;cursor:pointer;padding:10px 20px;border-radius:11px;font-size:16px;font-weight:700;color:var(--muted);display:flex;align-items:baseline;gap:8px}
+.plat-btn small{font-size:12px;font-weight:600;opacity:.8}
+.plat-btn.on{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+body[data-plat=buyma] .smart-only,body:not([data-plat=buyma]) .buyma-only{display:none!important}
+body[data-plat=buyma] #p-calc{display:none!important}
+.mc-grid .f.span3{grid-column:span 3!important}
+@media (max-width:1100px){.mc-grid .f.span3{grid-column:span 2!important}}
+@media (max-width:600px){.mc-grid .f.span3{grid-column:auto!important}}
+#bDetail summary{cursor:pointer;font-size:15px;font-weight:700;color:var(--muted);padding:10px 0 2px;list-style:none;user-select:none}
+#bDetail summary::-webkit-details-marker{display:none}
+#bDetail summary::after{content:' ▾'}#bDetail[open] summary::after{content:' ▴'}
+#bDetail .bk{margin-top:8px}#bDetail .bk td{padding:11px 6px;font-size:15px}#bDetail .bk tr:last-child td{font-size:17px}
+/* 강조색 위 글자색 변수화 */
+.btn.primary{color:var(--on-accent,#fff)}
+.big .kpi.hero{color:var(--on-accent,#fff)}
+.big .kpi.hero .l,.big .kpi.hero .sub{color:var(--on-accent,#fff)!important;opacity:.82}
+.hero-r{border-left-color:color-mix(in srgb,var(--on-accent,#fff) 30%,transparent)!important}
+.big .kpi.hero.loss{color:#fff}
+.kpi.hl{color:var(--on-accent,#fff)}.kpi.hl .l{color:var(--on-accent,#fff)!important;opacity:.85}
+/* ===== 스마트스토어 네이버 그린 테마 ===== */
+body[data-plat=smart]{--accent:#03c75a;--accent-weak:#e5f8ed;--on-accent:#fff;--pos:#03a64b}
+:root[data-theme=dark] body[data-plat=smart]{--accent:#19ce6c;--accent-weak:#0f2e1d;--on-accent:#fff;--pos:#2fd47a}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) body[data-plat=smart]{--accent:#19ce6c;--accent-weak:#0f2e1d;--on-accent:#fff;--pos:#2fd47a}}
+body[data-plat=smart] .plat-btn.on{background:var(--accent);color:var(--on-accent)}
+/* ===== BUYMA 블랙 & 화이트 테마 ===== */
+body[data-plat=buyma]{--accent:#111;--accent-weak:#ececec;--on-accent:#fff;--bg:#f4f4f4;--fill:#efefef;--surface2:#fafafa;--line:#e4e4e4;--text:#111;--sub:#444;--muted:#8a8a8a;--pos:#111}
+:root[data-theme=dark] body[data-plat=buyma]{--accent:#f2f2f2;--accent-weak:#262626;--on-accent:#0a0a0a;--bg:#0a0a0a;--surface:#161616;--surface2:#1d1d1d;--fill:#242424;--line:#2c2c2c;--text:#f2f2f2;--sub:#c8c8c8;--muted:#8a8a8a;--pos:#f2f2f2}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) body[data-plat=buyma]{--accent:#f2f2f2;--accent-weak:#262626;--on-accent:#0a0a0a;--bg:#0a0a0a;--surface:#161616;--surface2:#1d1d1d;--fill:#242424;--line:#2c2c2c;--text:#f2f2f2;--sub:#c8c8c8;--muted:#8a8a8a;--pos:#f2f2f2}}
+body[data-plat=buyma] .plat-btn.on{background:var(--accent);color:var(--on-accent)}
+body[data-plat=buyma] .save-btn{color:var(--text)!important}
+body[data-plat=buyma] .krw{color:var(--text)}
+body[data-plat=buyma] .it-actions a.by{background:var(--accent);color:var(--on-accent)}
+body[data-plat=buyma] .it-actions a.src{background:transparent;color:var(--text);box-shadow:inset 0 0 0 1.5px var(--text)}
+body[data-plat=buyma] .dot.by{background:var(--text)}body[data-plat=buyma] .dot.src{background:transparent;box-shadow:inset 0 0 0 2px var(--text)}
+body[data-plat=buyma] .it-thumb,body[data-plat=buyma] .it-drop{filter:none}
+
+/* ===== BUYMA 장부 ===== */
+/* ===== 전체 판매 장부 (스마트스토어 + BUYMA) ===== */
+body:not([data-plat=all]) .ledger-only,body:not([data-plat=all]) .bledger-only,body:not([data-plat=all]) .all-only,body:not([data-plat=all]) .allv-only{display:none!important}
+body[data-plat=all] .items-only,body[data-plat=all] .calc-only,body[data-plat=all] .apptabs{display:none!important}
+body[data-plat=all]:not([data-seg=smart]) .ledger-only{display:none!important}
+body[data-plat=all]:not([data-seg=buyma]) .bledger-only{display:none!important}
+body[data-plat=all]:not([data-seg=all]) .allv-only{display:none!important}
+.all-h1{color:var(--text)}
+.aseg{max-width:760px;margin-bottom:24px}
+.aseg label{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:17px}
+.aseg small{font-size:12px;font-weight:600;color:var(--muted)}
+/* 달력 */
+.cal-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.cal-head h3{margin:0;font-size:22px;min-width:140px;text-align:center;letter-spacing:-.02em}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cal .dow{font-size:13px;font-weight:700;color:var(--muted);text-align:center;padding:4px 0}
+.cal .dow.sun,.cal .day.sun .dn{color:var(--neg)}.cal .dow.sat,.cal .day.sat .dn{color:var(--accent)}
+.cal .day{background:var(--surface);border-radius:14px;min-height:104px;padding:8px;cursor:pointer;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px;border:2px solid transparent;min-width:0}
+.cal .day:hover{border-color:var(--line)}
+.cal .day.today{border-color:var(--accent)}
+.cal .day.out{opacity:.35;cursor:default;background:transparent;box-shadow:none}
+.cal .dn{font-size:14px;font-weight:700}
+.cchip{font-size:12px;font-weight:700;border-radius:8px;padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.cchip.sale{background:var(--accent-weak);color:var(--accent)}
+.cchip.ret{background:var(--warn-weak);color:var(--warn)}
+.cchip.ad{background:var(--fill);color:var(--sub)}
+.dlist{display:flex;flex-direction:column;gap:8px}
+.ditem{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--fill);border-radius:12px;cursor:pointer;min-width:0}
+.ditem .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.ditem .v{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ditem .k{font-size:13px;padding:3px 9px;border-radius:999px;font-weight:700;white-space:nowrap;background:var(--surface)}
+.dempty{color:var(--muted);padding:12px 2px}
+.kpi.hl .neg{color:inherit}.kpi.hl .muted{color:inherit!important;opacity:.82}
+@media (max-width:700px){.cal{gap:3px}.cal .day{min-height:66px;padding:4px;border-radius:10px}.cchip{font-size:10px;padding:1px 3px}.cal-head h3{min-width:110px;font-size:19px}}
+.src-tag{font-size:13px;padding:4px 10px;border-radius:999px;font-weight:700;white-space:nowrap}
+.src-tag.smart{background:rgba(3,199,90,.13);color:#029e48}
+.src-tag.buyma{background:var(--text);color:var(--surface)}
+#aTbl td.zero{color:var(--muted)}
+.bmonth{margin-top:16px;padding:0 0 4px}
+.bmonth summary{cursor:pointer;padding:20px 22px;font-size:18px;font-weight:800;list-style:none}
+.bmonth summary::-webkit-details-marker{display:none}
+.bmonth summary::after{content:' ▾';color:var(--muted)}.bmonth[open] summary::after{content:' ▴'}
+#bTbl td .yen{display:block;font-size:13px;color:var(--muted);font-weight:500}
+body[data-plat=buyma] .ev button.ok{background:var(--accent);color:var(--on-accent)}
+.vat-tog{display:flex;align-items:center;gap:8px;height:56px;padding:0 16px;background:var(--fill);border-radius:14px;font-size:16px;font-weight:600;color:var(--sub);cursor:pointer}
+.vat-tog input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.vat-tog input.num{height:38px!important;padding:0 8px!important;font-size:17px!important;background:var(--surface)!important;border-radius:10px!important;text-align:right}
+.vat-tog input.num:disabled{opacity:.4}
+.mc-grid .f.span2b{grid-column:span 2!important}
+@media (max-width:600px){.mc-grid .f.span2b{grid-column:auto!important}}
+.duty-row{display:flex;gap:8px;align-items:center}
+.duty-sel{flex:1;min-width:0;height:56px;border:none;background-color:var(--fill);border-radius:14px;padding:0 44px 0 14px;font-size:15px;font-weight:600}
+.duty-sel:disabled,.duty-rate input:disabled{opacity:.45}
+.duty-rate{width:110px;flex:none}
+.mc-grid .f.span4{grid-column:1/-1!important}
+.biz-seg{display:inline-flex;background:var(--fill);border-radius:12px;padding:3px;gap:3px;margin-left:14px}
+.biz-seg button{border:none;background:none;padding:8px 14px;border-radius:9px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer}
+.biz-seg button.on{background:var(--accent);color:var(--on-accent)}
+.mc-head h3{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.duty-rate input{padding-right:92px!important}
+.duty-rate span{font-size:15px!important}
+.card-pct input{padding-right:40px!important}
+.fix-in input{padding-right:118px!important;font-size:18px!important}.fix-in span{font-size:14px!important}
+@media (max-width:900px){.fix-in{flex:1 1 45%!important}.duty-row:has(.fix-in){flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="plat" id="platNav">
+    <button class="plat-btn" data-plat="smart">스마트스토어 <small>일본 → 한국</small></button>
+    <button class="plat-btn" data-plat="buyma">BUYMA <small>한국 → 일본</small></button>
+    <button class="plat-btn" data-plat="all">전체 판매 장부 <small>세금 신고용</small></button>
+  </nav>
+  <header>
+    <div>
+      <nav class="apptabs">
+        <h1><button class="apptab on" data-app="items">판매 리스트</button></h1>
+        <h1><button class="apptab" data-app="calc">마진 계산기</button></h1>
+      </nav>
+      <h1 class="all-only all-h1">전체 판매 장부</h1>
+    </div>
+    <div class="actions">
+      <button class="btn primary all-only" id="btnAdd">+ 스마트스토어 주문</button>
+      <button class="btn primary all-only" id="bAdd">+ BUYMA 주문</button>
+      <button class="btn allv-only" id="aExport">엑셀 내보내기</button>
+      <button class="btn ledger-only" id="btnExport">엑셀 내보내기</button>
+      <button class="btn ledger-only" id="btnImport">엑셀 불러오기</button>
+      <button class="btn bledger-only" id="bExport">엑셀 내보내기</button>
+      <button class="btn save-btn" id="btnSave" title="장부·판매 리스트를 저장파일(.json)에 저장 (Ctrl+S)">💾 저장</button>
+      <button class="btn save-btn" id="btnLoad" title="저장파일(.json) 불러오기">📂 불러오기</button>
+      <input type="file" id="loadFile" accept=".json,application/json" hidden>
+      <button class="btn danger" id="btnClear" title="장부·판매 리스트 초기화">초기화</button>
+      <button class="btn theme-btn" id="btnTheme"></button>
+      <input type="file" id="fileImport" accept=".xlsx,.xls,.json" hidden>
+    </div>
+  </header>
+  <div class="all-only meta"><button class="ledger" id="btnName" title="클릭해서 장부 이름 바꾸기"></button> <button class="filechip" id="fileChip"></button> <small id="lastBackup"></small><span class="src" id="srcInfo"></span></div>
+  <div class="notice" id="storeWarn"></div>
+  <div class="notice" id="notice"></div>
+  <div class="all-only"><div class="seg aseg" id="aSeg">
+    <label><input type="radio" name="aseg" value="all" checked>전체 <small>스마트스토어 + BUYMA</small></label>
+    <label><input type="radio" name="aseg" value="smart">스마트스토어 <small>과세 · 구매대행</small></label>
+    <label><input type="radio" name="aseg" value="buyma">BUYMA <small>영세율 · 수출</small></label>
+  </div></div>
+
+  <section class="allv-only" id="p-all">
+    <div class="notice" id="aTaxWarn"></div>
+    <div class="kpis" id="aKpis"></div>
+    <div class="tabs">
+      <button class="tab on" data-tab="alist">건별 장부</button>
+      <button class="tab" data-tab="asum">기간별 합계</button>
+      <button class="tab" data-tab="acal">달력</button>
+    </div>
+    <section class="panel" id="p-acal">
+      <div class="cal-head">
+        <button class="btn sm" id="calPrev" title="이전 달">◀</button>
+        <h3 id="calTitle"></h3>
+        <button class="btn sm" id="calNext" title="다음 달">▶</button>
+        <button class="btn sm" id="calToday">오늘</button>
+        <span style="flex:1"></span>
+        <button class="btn" id="calRet">+ 반품</button>
+        <button class="btn primary" id="calAd">+ 광고비 충전</button>
+      </div>
+      <div class="kpis" id="calKpis"></div>
+      <div class="cal" id="calGrid"></div>
+      <p class="foot">날짜를 누르면 그날의 판매·반품·광고비를 보고 바로 추가할 수 있어요. 판매는 스마트스토어·BUYMA 장부에 기록한 주문이 주문일 기준으로 자동 표시돼요. 광고비는 일반과세자 기준으로 결제액의 10/110을 부가세 공제로 빼서 실부담을 계산하고, 무상 비즈머니는 손익에 넣지 않아요. 반품 손익 = −환불액 − 반품 처리비용 + 회수 재고 가치이며, 반품에 따른 부가세 조정은 신고 때 세무사와 확인하세요.</p>
+    </section>
+    <section class="panel on" id="p-alist">
+      <div class="filters">
+        <input type="search" id="aq" placeholder="주문번호 · 상품명 · 고객 · 비고 검색">
+        <label>기간 <input type="date" id="aFrom"> ~ <input type="date" id="aTo"></label>
+        <select id="aQuick">
+          <option value="">빠른 기간</option><option value="thisMonth">이번 달</option><option value="lastMonth">지난 달</option>
+          <option value="h1">올해 1~6월</option><option value="h2">올해 7~12월</option><option value="year">올해 전체</option><option value="lastYear">작년 전체</option>
+        </select>
+        <label><input type="checkbox" id="aEvF"> 증빙 미완료만</label>
+        <button class="btn sm" id="aResetF">필터 해제</button>
+      </div>
+      <div class="card"><table id="aTbl">
+        <thead><tr><th>주문일</th><th>구분</th><th>주문번호</th><th>상품명</th><th>고객</th><th class="n">판매금액</th><th class="n" title="스마트스토어 구매대행 수수료(A−B−C−D)">과세매출</th><th class="n" title="BUYMA 판매가(엔) × 선적일 기준환율">영세율매출</th><th class="n">매입·비용</th><th class="n">순이익</th><th>증빙</th><th></th></tr></thead>
+        <tbody></tbody><tfoot></tfoot>
+      </table><div class="empty" id="aEmpty" hidden>조건에 맞는 주문이 없습니다. 위의 <b>+ 스마트스토어 주문</b> / <b>+ BUYMA 주문</b>으로 기록해 보세요.</div></div>
+    </section>
+    <section class="panel" id="p-asum">
+      <div class="filters"><label>연도 <select id="aYear"></select></label></div>
+      <div class="sumgrid">
+        <div class="card full"><h3 id="aHh"></h3><table id="aH"></table></div>
+        <div class="card full"><h3>월별</h3><table id="aM"></table></div>
+      </div>
+    </section>
+    <p class="foot">스마트스토어와 BUYMA 데이터를 합쳐서 보여주는 화면이에요. 과세매출은 구매대행 수수료(A−B−C−D), 영세율매출은 BUYMA 판매가(엔) × 선적일 기준환율(신고용)입니다. 위쪽 구분에서 스마트스토어/BUYMA를 고르면 각각의 상세 장부(엑셀 불러오기·내보내기 포함)를 볼 수 있어요.</p>
+  </section>
+
+  <div class="ledger-only">
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="tabs">
+    <button class="tab on" data-tab="list">건별 장부</button>
+    <button class="tab" data-tab="sum">기간별 합계</button>
+  </div>
+
+  <section class="panel on" id="p-list">
+    <div class="filters">
+      <input type="search" id="q" placeholder="주문번호 · 상품명 · 고객명 · 비고 검색">
+      <select id="fStore"><option value="">전체 스토어</option></select>
+      <label>기간 <input type="date" id="fFrom"> ~ <input type="date" id="fTo"></label>
+      <select id="fQuick">
+        <option value="">빠른 기간</option>
+        <option value="thisMonth">이번 달</option>
+        <option value="lastMonth">지난 달</option>
+        <option value="h1">올해 1~6월</option>
+        <option value="h2">올해 7~12월</option>
+        <option value="year">올해 전체</option>
+        <option value="lastYear">작년 전체</option>
+      </select>
+      <label><input type="checkbox" id="fEv"> 증빙 미완료만</label>
+      <button class="btn sm" id="btnReset">필터 해제</button>
+    </div>
+    <div class="card"><table id="tbl">
+      <thead><tr>
+        <th data-k="orderDate">주문일</th><th data-k="store">스토어</th><th data-k="orderNo">주문번호</th><th data-k="product">상품명</th>
+        <th data-k="customer">고객</th>
+        <th class="n" data-k="A">고객결제(A)</th><th class="n" data-k="B">해외결제(B)</th><th class="n" data-k="C">배대지(C)</th><th class="n" data-k="D">관부가세(D)</th>
+        <th class="n" data-k="comm">대행수수료</th><th class="n" data-k="fee">마켓수수료</th><th class="n" title="일반과세자로 기록된 주문만: 수수료×10/110 − 마켓수수료×10/110">부가세</th><th class="n" data-k="net">순이익</th>
+        <th title="정산내역서 / 해외영수증 / 배대지내역">증빙</th><th></th>
+      </tr></thead>
+      <tbody></tbody><tfoot></tfoot>
+    </table><div class="empty" id="empty" hidden>조건에 맞는 주문이 없습니다. <b>+ 주문 추가</b>로 첫 건을 기록해 보세요.</div></div>
+  </section>
+
+  <section class="panel" id="p-sum">
+    <div class="filters">
+      <label>연도 <select id="sYear"></select></label>
+      <select id="sStore"><option value="">전체 스토어</option></select>
+    </div>
+    <div class="sumgrid">
+      <div class="card"><h3 id="tHh"></h3><table id="tH"></table></div>
+      <div class="card"><h3>분기별</h3><table id="tQ"></table></div>
+      <div class="card full"><h3>월별</h3><table id="tM"></table></div>
+    </div>
+  </section>
+
+
+  <p class="foot">데이터는 이 브라우저에 자동 저장되고, 상단의 <b>💾 저장파일 연결</b>을 해 두면 PC의 .json 파일에도 자동 저장됩니다. 저장파일은 다른 브라우저·PC에서도 연결해서 이어 쓸 수 있어요. 기간 집계는 주문일 기준입니다.</p>
+  </div>
+
+
+  <section class="bledger-only" id="p-bledger">
+    <div class="kpis" id="bKpis"></div>
+    <div class="filters">
+      <input type="search" id="bq" placeholder="주문번호 · 상품명 · 고객 · 비고 검색">
+      <label>기간 <input type="date" id="bFrom"> ~ <input type="date" id="bTo"></label>
+      <select id="bQuick">
+        <option value="">빠른 기간</option><option value="thisMonth">이번 달</option><option value="lastMonth">지난 달</option>
+        <option value="h1">올해 1~6월</option><option value="h2">올해 7~12월</option><option value="year">올해 전체</option><option value="lastYear">작년 전체</option>
+      </select>
+      <label><input type="checkbox" id="bEvF"> 증빙 미완료만</label>
+      <button class="btn sm" id="bResetF">필터 해제</button>
+    </div>
+    <div class="card"><table id="bTbl">
+      <thead><tr><th>주문일</th><th>주문번호</th><th>상품명</th><th>고객</th><th class="n">판매가(엔)</th><th class="n">수수료(엔)</th><th class="n">정산액(원)</th><th class="n">매입가</th><th class="n">배송비</th><th class="n" title="관세·통관비 + 픽업비 + 기타">관세·기타</th><th class="n" title="카드 할인·적립 + 매입 부가세 환급">적립·환급</th><th class="n">순이익</th><th title="BUYMA 정산내역 / 매입 영수증 / 배송·수출 증빙">증빙</th><th></th></tr></thead>
+      <tbody></tbody><tfoot></tfoot>
+    </table><div class="empty" id="bEmpty" hidden>조건에 맞는 주문이 없습니다. <b>+ 주문 추가</b>로 첫 건을 기록해 보세요.</div></div>
+    <details class="card bmonth" id="bMonthWrap"><summary>월별 합계 <span class="muted" id="bMonthYear"></span></summary><table id="bMonth"></table></details>
+    <p class="foot">BUYMA 장부는 스마트스토어 장부와 따로 저장됩니다. 정산액(원)은 판매가에서 BUYMA 수수료를 뺀 엔화를 수취 환율로 바꾼 금액이며, 실제 입금액으로 고쳐 쓸 수 있어요.</p>
+  </section>
+
+  <section class="items-only" id="p-items">
+    <div class="it-bar">
+      <input type="search" id="itQ" placeholder="상품명 · 링크 검색">
+      <span class="muted" id="itCount"></span>
+      <span style="flex:1"></span>
+      <button class="btn primary" id="itAdd">+ 상품 추가</button>
+    </div>
+    <div class="it-grid" id="itGrid"></div>
+    <div class="empty card" id="itEmpty" hidden>아직 등록한 상품이 없어요. <b>+ 상품 추가</b>로 이미지·상품명·링크를 저장해 보세요.</div>
+  </section>
+
+  <section class="calc-only buyma-only" id="p-bcalc">
+    <div class="mc">
+      <div class="card" id="bcForm">
+        <div class="mc-head"><h3>입력 <span class="muted" style="font-size:15px;font-weight:600">한국에서 매입 → BUYMA(일본) 판매</span></h3><span style="flex:1"></span><div class="actions"><button class="btn primary" id="bCopy">결과 복사</button><button class="btn" id="bReset">기본값으로</button></div></div>
+        <div class="mc-grid">
+          <div class="f"><label>매입가 (한국) · 카드 할인/적립</label><div class="duty-row"><div class="unit" style="flex:2;min-width:0"><input data-b="cost" class="num" inputmode="numeric"><span>원</span></div><div class="unit card-pct" style="flex:1;min-width:0"><input data-b="cardPct" class="num" inputmode="decimal" placeholder="0"><span>%</span></div></div><div class="krw" id="bCostJpy"></div></div>
+          <div class="f"><label>매입처 배송비 <span class="muted" style="font-weight:500">(무료배송이면 0)</span></label><div class="unit"><input data-b="domShip" class="num" inputmode="numeric" placeholder="0"><span>원</span></div><div class="krw" id="bDomInfo"></div>
+            <label class="vat-tog" style="height:44px;margin-top:6px;font-size:15px"><input type="checkbox" data-b="noVat"><span>크림·개인 판매자 매입 <span class="muted" style="font-weight:500">(부가세 환급 없음)</span></span></label></div>
+          <div class="f"><label>국제 배송비 (한국 → 일본)</label><div class="unit"><input data-b="ship" class="num" inputmode="numeric"><span>원</span></div><div class="krw" id="bShipJpy"></div></div>
+          <div class="f"><label>상품 픽업비용</label><div class="duty-row"><label class="vat-tog" style="flex:none"><input type="checkbox" data-b="pickOn"><span>포함</span></label><div class="unit" style="flex:1;min-width:0"><input data-b="pickFee" class="num" inputmode="numeric"><span>원</span></div></div><div class="krw" id="bPickInfo"></div></div>
+          <div class="f"><label>기준환율 (100엔당)</label><div class="unit"><input data-b="baseRate" class="num" inputmode="decimal"><span>원</span></div><div class="krw muted-krw">수취 환율 <b id="bRate"></b></div></div>
+          <div class="f"><label>환전·송금 수수료율</label><div class="unit"><input data-b="fxFee" class="num" inputmode="decimal"><span>%</span></div></div>
+          <div class="f"><label>BUYMA 수수료율</label><div class="unit"><input data-b="feeRate" class="num" inputmode="decimal"><span>%</span></div><div class="krw muted-krw" id="bFixInfo"></div></div>
+          <div class="f span2b"><label>일본 관세·소비세·통관수수료 <span class="muted" style="font-weight:500">판매자 부담 · 판매가 16,669엔 이상이면 자동 과세 (과세가격 = 판매가×0.6, 1만엔 이하 면세) · 비가죽 신발 기준</span></label>
+            <div class="duty-row">
+              <div class="unit duty-rate" style="flex:1;width:auto"><input data-b="dutyRate" class="num" inputmode="decimal"><span>% 관세</span></div>
+              <div class="unit duty-rate" style="flex:1;width:auto"><input data-b="clearFee" class="num" inputmode="numeric"><span>엔 수수료</span></div>
+            </div>
+            <label class="vat-tog" style="height:44px;margin-top:8px;font-size:15px"><input type="checkbox" data-b="feeAlways"><span>면세여도 통관수수료 부과 <span class="muted" style="font-weight:500">(배송사 정책에 따라 다름 · 트랙스로지스에 확인)</span></span></label>
+            <div class="krw" id="bDutyInfo"></div></div>
+          <div class="f span4"><label>BUYMA 정액 수수료 (상품 1건당·세포함) <span class="muted" style="font-weight:500">BUYMA 공지 금액으로 맞춰 주세요</span></label>
+            <div class="duty-row">
+              <div class="unit fix-in" style="flex:1;min-width:0"><input data-b="fix1" class="num" inputmode="numeric"><span>엔 · 1만 미만</span></div>
+              <div class="unit fix-in" style="flex:1;min-width:0"><input data-b="fix2" class="num" inputmode="numeric"><span>엔 · 2만 미만</span></div>
+              <div class="unit fix-in" style="flex:1;min-width:0"><input data-b="fix3" class="num" inputmode="numeric"><span>엔 · 10만 미만</span></div>
+              <div class="unit fix-in" style="flex:1;min-width:0"><input data-b="fix4" class="num" inputmode="numeric"><span>엔 · 10만 이상</span></div>
+            </div></div>
+          <div class="f"><label>판매가 (BUYMA 등록가)</label><div class="unit"><input data-b="sale" class="num" inputmode="numeric"><span>엔</span></div><div class="krw" id="bSaleKrw"></div></div>
+        </div>
+      </div>
+      <div>
+        <p class="calc-err" id="bErr"></p>
+        <div class="big" id="bBig"></div>
+        <div class="card mini">
+          <div class="mini-h"><span>판매가 구성</span><div class="legend" id="bLegend"></div></div>
+          <div class="stack" id="bStack"></div>
+          <details id="bDetail" class="mdet"><summary>계산 과정 보기</summary>
+            <table class="bk"><tbody id="bBreak"></tbody></table>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="calc-only" id="p-calc">
+    <div class="mc">
+      <div class="card" id="mcForm">
+        <div class="mc-head"><h3>입력</h3><span style="flex:1"></span><div class="actions"><button class="btn primary" id="mCopy">결과 복사</button><button class="btn" id="mToLedger">장부에 기록</button><button class="btn" id="mReset">기본값으로</button></div></div>
+        <div class="mc-grid">
+          <div class="f"><label>일본 상품 원가 (해외마켓 가격)</label><div class="unit"><input data-m="jpy" class="num" inputmode="numeric"><span>엔</span></div><div class="krw" id="mJpyKrw"></div></div>
+          <div class="f"><label>배대지 비용 (국제배송비·검수비 등)</label><div class="unit"><input data-m="shipJpy" class="num" inputmode="numeric"><span>엔</span></div><div class="krw" id="mShipKrw"></div></div>
+          <div class="f"><label>기준환율 (100엔당)</label><div class="unit"><input data-m="baseRate" class="num" inputmode="decimal"><span>원</span></div><div class="krw muted-krw">적용 환율 <b id="mRate"></b></div></div>
+          <div class="f"><label>환전·카드 수수료율</label><div class="unit"><input data-m="fxFee" class="num" inputmode="decimal"><span>%</span></div></div>
+          <div class="f"><label>마켓 수수료율</label><div class="unit"><input data-m="feeRate" class="num" inputmode="decimal"><span>%</span></div></div>
+          <div class="f"><label>고객 부과 배송비 (무료배송이면 0)</label><div class="unit"><input data-m="custShip" class="num" inputmode="numeric"><span>원</span></div></div>
+          <div class="f mc-target mine"><label><span class="zone-tag mine-tag">내 상품</span>내 판매가 (상품 등록가)</label><div class="unit" id="mTargetPrice"><input data-m="salePrice" class="num" inputmode="numeric"><span>원</span></div><div class="krw" id="mListShow"></div></div>
+        </div>
+        <p class="calc-err" id="mErr"></p>
+        <div class="big mine-result" id="mBig"></div>
+      </div>
+      <div>
+        <div class="card mini">
+          <div class="mini-h"><span>결제금액 구성</span><div class="legend" id="mLegend"></div></div>
+          <div class="stack" id="mStack"></div>
+          <details id="mDetail"><summary>계산 과정 보기</summary>
+            <table class="bk"><tbody id="mBreak"></tbody></table>
+          </details>
+        </div>
+        <div class="comp-zone">
+          <div class="comp-zone-h"><span class="zone-tag comp-tag">경쟁사</span><span>비교용 · 내 계산에는 들어가지 않아요</span></div>
+          <div class="comp-grid">
+            <div class="f"><label>경쟁사 판매가</label><div class="unit"><input data-m="compPrice" class="num" inputmode="numeric" placeholder="0"><span>원</span></div></div>
+            <div class="f"><label>경쟁사 배송비 (무료면 0)</label><div class="unit"><input data-m="compShip" class="num" inputmode="numeric" placeholder="0"><span>원</span></div></div>
+            <div class="f comp-total"><label>경쟁사 총 결제금액</label><div class="comp-box" id="mComp">경쟁사 판매가를 넣으면 총 결제금액을 보여 드려요</div></div>
+            <div class="f comp-total"><label>경쟁사 가격에 내가 팔면 (내 원가 기준)</label><div class="comp-box" id="mCompMargin">경쟁사 판매가를 넣으면 남는 돈을 계산해 드려요</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<dialog id="dlg">
+  <form id="frm" method="dialog">
+    <div class="dh"><h2 id="dlgTitle">주문 추가</h2><button type="button" class="btn sm" data-close>닫기</button></div>
+    <div class="db">
+      <fieldset><legend>1. 기본 주문 정보</legend>
+        <div class="grid">
+          <div class="f"><label class="req">스토어명</label><input name="store" list="storeList" required></div>
+          <div class="f"><label class="req">주문일자</label><input type="date" name="orderDate" required></div>
+          <div class="f"><label>결제일자</label><input type="date" name="payDate"></div>
+          <div class="f"><label class="req">마켓 주문번호</label><input name="orderNo" required></div>
+          <div class="f s2"><label>상품명</label><input name="product"></div>
+          <div class="f"><label>수량</label><input name="qty" class="num" inputmode="numeric" value="1"></div>
+          <div class="f"><label>고객 성명</label><input name="customer"></div>
+          <div class="f"><label>개인통관고유부호</label><input name="pccc" placeholder="P로 시작 13자리" maxlength="13"></div>
+        </div>
+      </fieldset>
+      <fieldset><legend>2. 매출 내역</legend>
+        <div class="grid">
+          <div class="f s2"><label class="req">고객 총 결제금액 (A)</label><input name="A" class="num money" inputmode="numeric" required></div>
+          <div class="f s2"><label>마켓 수수료</label><input name="fee" class="num money" inputmode="numeric"></div>
+        </div>
+      </fieldset>
+      <fieldset><legend>3. 매입 및 비용 내역 <span class="muted" style="font-size:15px;font-weight:600">엔으로 입력하면 원화(B·C)가 자동 계산돼요</span></legend>
+        <div class="grid">
+          <div class="f"><label>해외 쇼핑몰 결제액</label><div class="unit"><input name="Bjpy" class="num money" inputmode="numeric"><span>엔</span></div></div>
+          <div class="f"><label>→ 원화 (B) <span class="auto-tag" id="tagB"></span></label><div class="unit"><input name="B" class="num money krwin" inputmode="numeric"><span>원</span></div></div>
+          <div class="f"><label>배대지 비용</label><div class="unit"><input name="Cjpy" class="num money" inputmode="numeric"><span>엔</span></div></div>
+          <div class="f"><label>→ 원화 (C) <span class="auto-tag" id="tagC"></span></label><div class="unit"><input name="C" class="num money krwin" inputmode="numeric"><span>원</span></div></div>
+          <div class="f"><label>적용 환율 (100엔당)</label><div class="unit"><input name="rate" class="num" inputmode="decimal"><span>원</span></div></div>
+          <div class="f s2"><label>해외 결제수단</label><input name="payMethod" list="payList" placeholder="예: 사업용카드 1234"></div>
+          <div class="f"><label>관·부가세 (D) <span class="muted" style="font-weight:500">국내 납부</span></label><div class="unit"><input name="D" class="num money" inputmode="numeric"><span>원</span></div></div>
+        </div>
+        <p class="muted" style="font-size:14px;margin:10px 0 0">원화(B·C)는 카드 명세서의 실제 청구액으로 고쳐 쓸 수 있어요. 직접 고치면 그 금액이 유지되고, 비우면 다시 자동 계산돼요.</p>
+      </fieldset>
+      <div class="calc" id="calc"></div>
+      <fieldset style="margin-top:12px"><legend>5. 증빙 보관</legend>
+        <div class="checks">
+          <label><input type="checkbox" name="ev1"> 마켓 정산내역서</label>
+          <label><input type="checkbox" name="ev2"> 해외 구매영수증</label>
+          <label><input type="checkbox" name="ev3"> 배대지 이용내역 / 운송장</label>
+        </div>
+        <div class="f s4" style="margin-top:10px"><label>비고 (운송장번호, 쇼핑몰명 등)</label><textarea name="memo" rows="2"></textarea></div>
+      </fieldset>
+    </div>
+    <div class="df">
+      <button type="button" class="btn danger" id="btnDel" hidden>삭제</button>
+      <span style="flex:1"></span>
+      <label class="muted" style="font-size:15px;font-weight:600;display:flex;gap:8px;align-items:center" id="keepWrap"><input type="checkbox" id="keepOpen"> 저장 후 계속 입력</label>
+      <button type="button" class="btn" data-close>취소</button>
+      <button type="submit" class="btn primary">저장</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="dlgB" style="width:min(980px,96vw)">
+  <form id="bFrm" method="dialog">
+    <div class="dh"><h2 id="bDlgTitle">BUYMA 주문 추가</h2><button type="button" class="btn sm" data-bclose>닫기</button></div>
+    <div class="db">
+      <fieldset><legend>1. 주문 정보</legend>
+        <div class="grid">
+          <div class="f"><label class="req">주문일자</label><input type="date" name="orderDate" required></div>
+          <div class="f"><label class="req">BUYMA 주문(거래)번호</label><input name="orderNo" required></div>
+          <div class="f s2"><label>상품명</label><input name="product"></div>
+          <div class="f"><label>수량</label><input name="qty" class="num" inputmode="numeric" value="1"></div>
+          <div class="f"><label>고객 (닉네임/이름)</label><input name="customer"></div>
+          <div class="f s2"><label>배송 송장번호</label><input name="tracking" placeholder="EMS · 국제택배 송장번호"></div>
+        </div>
+      </fieldset>
+      <fieldset><legend>2. 매출 (엔)</legend>
+        <div class="grid">
+          <div class="f"><label class="req">판매가</label><div class="unit"><input name="saleJpy" class="num bmoney" inputmode="numeric" required><span>엔</span></div></div>
+          <div class="f"><label>BUYMA 수수료</label><div class="unit"><input name="feeJpy" class="num bmoney" inputmode="numeric"><span>엔</span></div></div>
+          <div class="f"><label>수취 환율 (100엔당)</label><div class="unit"><input name="rate" class="num" inputmode="decimal"><span>원</span></div></div>
+          <div class="f"><label>신고용 기준환율 (선적일·100엔당)</label><div class="unit"><input name="taxRate" class="num" inputmode="decimal"><span>원</span></div></div>
+          <div class="f"><label>→ 정산액 (원) <span class="auto-tag" id="bTag"></span></label><div class="unit"><input name="settleKrw" class="num bmoney krwin" inputmode="numeric"><span>원</span></div></div>
+        </div>
+        <p class="muted" style="font-size:14px;margin:10px 0 0">수수료를 비우면 마진 계산기의 BUYMA 수수료율 + 정액 수수료(계산기에서 설정한 금액)로 자동 계산돼요. 정산액(원)은 실제 입금액으로 고쳐 쓸 수 있어요(비우면 다시 자동).</p>
+      </fieldset>
+      <fieldset><legend>3. 매입 및 비용 (원)</legend>
+        <div class="grid">
+          <div class="f"><label>매입가</label><div class="unit"><input name="cost" class="num bmoney" inputmode="numeric"><span>원</span></div></div>
+          <div class="f"><label>국제 배송비</label><div class="unit"><input name="ship" class="num bmoney" inputmode="numeric"><span>원</span></div></div>
+          <div class="f"><label>기타 비용 (포장 등)</label><div class="unit"><input name="etc" class="num bmoney" inputmode="numeric"><span>원</span></div></div>
+          <div class="f"><label>매입처</label><input name="vendor" placeholder="예: 무신사, 공식몰, 크림"></div>
+          <div class="f s2" style="justify-content:flex-end"><label class="vat-tog"><input type="checkbox" name="noVat"><span>크림·개인 판매자 매입 <span class="muted" style="font-weight:500">(부가세 환급 없음)</span></span></label></div>
+          <div class="f"><label>일본 관세·통관비 <span class="auto-tag" id="bTag_duty"></span></label><div class="unit"><input name="duty" class="num bmoney bauto krwin" inputmode="numeric"><span>원</span></div></div>
+          <div class="f"><label>상품 픽업비용 <span class="auto-tag" id="bTag_pick"></span></label><div class="unit"><input name="pick" class="num bmoney bauto krwin" inputmode="numeric"><span>원</span></div></div>
+          <div class="f"><label>+ 카드 할인·적립 <span class="auto-tag" id="bTag_cardBack"></span></label><div class="unit"><input name="cardBack" class="num bmoney bauto krwin" inputmode="numeric"><span>원</span></div></div>
+          <div class="f"><label>+ 매입 부가세 환급 <span class="auto-tag" id="bTag_vatBack"></span></label><div class="unit"><input name="vatBack" class="num bmoney bauto krwin" inputmode="numeric"><span>원</span></div></div>
+        </div>
+        <p class="muted" style="font-size:14px;margin:10px 0 0">관세·픽업비·카드적립·부가세 환급은 마진 계산기 설정(관세 포함 여부·픽업비·카드 %·간이/일반과세자)으로 자동 채워져요. 직접 고치면 그 금액이 유지되고, 비우면 다시 자동 계산돼요.</p>
+      </fieldset>
+      <div class="calc" id="bCalcBox"></div>
+      <fieldset><legend>증빙 보관</legend>
+        <div class="checks">
+          <label><input type="checkbox" name="ev1"> BUYMA 정산내역</label>
+          <label><input type="checkbox" name="ev2"> 매입 영수증</label>
+          <label><input type="checkbox" name="ev3"> 배송·수출 증빙</label>
+        </div>
+        <div class="f s4" style="margin-top:12px"><label>비고</label><textarea name="memo" rows="2"></textarea></div>
+      </fieldset>
+    </div>
+    <div class="df">
+      <button type="button" class="btn danger" id="bDel" hidden>삭제</button><span style="flex:1"></span>
+      <label class="muted" style="font-size:15px;font-weight:600;display:flex;gap:8px;align-items:center" id="bKeepWrap"><input type="checkbox" id="bKeep"> 저장 후 계속 입력</label>
+      <button type="button" class="btn" data-bclose>취소</button><button type="submit" class="btn primary">저장</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="dlgItem" style="width:min(640px,96vw)">
+  <form id="itForm" method="dialog">
+    <div class="dh"><h2 id="itTitle">상품 추가</h2><button type="button" class="btn sm" data-iclose>닫기</button></div>
+    <div class="db">
+      <div class="f"><label>상품 이미지</label>
+        <div class="it-drop" id="itDrop" tabindex="0">
+          <img id="itPrev" alt="" hidden>
+          <div class="it-drop-msg" id="itDropMsg"><b>클릭해서 이미지 선택</b><br>또는 파일을 끌어다 놓기 · 복사한 이미지 Ctrl+V</div>
+        </div>
+        <input type="file" id="itFile" accept="image/*" hidden>
+        <div style="display:flex;gap:8px;margin-top:8px"><input id="itImgUrl" placeholder="이미지 주소(URL)로 넣기 · https://..." style="flex:1"><button type="button" class="btn" id="itImgClear">이미지 지우기</button></div>
+      </div>
+      <div class="f" style="margin-top:16px"><label class="req">상품명</label><input name="name" required></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+        <div class="f"><label id="itPriceL">판매가</label><div class="unit"><input name="price" class="num itmoney" inputmode="numeric" placeholder="0"><span id="itPriceU">원</span></div></div>
+        <div class="f"><label id="itCostL">일본 가격 (매입가)</label><div class="unit"><input name="jpy" class="num itmoney" inputmode="numeric" placeholder="0"><span id="itCostU">엔</span></div></div>
+      </div>
+      <div class="f" style="margin-top:16px"><label id="itL1"><span class="dot rk"></span>라쿠텐 링크</label><input name="rakuten" placeholder="https://item.rakuten.co.jp/..."></div>
+      <div class="f" style="margin-top:16px"><label id="itL2"><span class="dot ss"></span>스마트스토어 링크</label><input name="smart" placeholder="https://smartstore.naver.com/..."></div>
+    </div>
+    <div class="df">
+      <button type="button" class="btn danger" id="itDel" hidden>삭제</button><span style="flex:1"></span>
+      <button type="button" class="btn" data-iclose>취소</button><button type="submit" class="btn primary">저장</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="dlgFile" style="width:min(520px,94vw)">
+  <div class="dh"><h2>저장파일 연결</h2><button type="button" class="btn sm" data-fclose>닫기</button></div>
+  <div class="db">
+    <p style="margin-top:0">PC에 저장파일(.json) 하나를 연결해 두면, 입력·수정할 때마다 그 파일에 <b>자동 저장</b>됩니다. 브라우저 기록을 지워도, 다른 브라우저에서도 이 파일만 연결하면 그대로 이어서 쓸 수 있어요.</p>
+    <p class="muted" style="font-size:15px">처음이면 <b>새 저장파일 만들기</b> → 원하는 폴더(예: 문서\구매대행)에 저장하세요. 이미 만들어 둔 파일이 있으면 <b>기존 파일 열기</b>를 누르세요.</p>
+  </div>
+  <div class="df"><span style="flex:1"></span>
+    <button type="button" class="btn" id="fOpen">기존 파일 열기</button>
+    <button type="button" class="btn primary" id="fNew">새 저장파일 만들기</button>
+  </div>
+</dialog>
+<dialog id="dlgClear" style="width:min(520px,94vw)">
+  <div class="dh"><h2>초기화</h2><button type="button" class="btn sm" data-cclose>닫기</button></div>
+  <div class="db">
+    <p style="margin-top:0">지울 항목을 고르세요. <b>되돌릴 수 없습니다.</b></p>
+    <div class="checks" style="flex-direction:column;align-items:stretch">
+      <label><input type="checkbox" id="clrRows" checked> 스마트스토어 장부 <span class="muted" id="clrRowsN"></span></label>
+      <label><input type="checkbox" id="clrItems" checked> 스마트스토어 판매 리스트 <span class="muted" id="clrItemsN"></span></label>
+      <label><input type="checkbox" id="clrBRows"> BUYMA 장부 <span class="muted" id="clrBRowsN"></span></label>
+      <label><input type="checkbox" id="clrBItems"> BUYMA 판매 리스트 <span class="muted" id="clrBItemsN"></span></label>
+      <label><input type="checkbox" id="clrCal"> 달력 기록 (반품·광고비) <span class="muted" id="clrCalN"></span></label>
+      <label><input type="checkbox" id="clrCalc"> 마진 계산기 입력값 (환율·수수료 등 기본값으로)</label>
+    </div>
+    <div class="f" id="clrNameWrap" style="margin-top:16px"><label>새 장부 이름</label><input id="clrNew" placeholder="예: 2026 실장부"></div>
+    <p class="notice show" id="clrWarn" style="margin:16px 0 0"></p>
+  </div>
+  <div class="df"><span style="flex:1"></span>
+    <button type="button" class="btn" data-cclose>취소</button>
+    <button type="button" class="btn" id="clrBackup">백업 받고 초기화</button>
+    <button type="button" class="btn primary" id="clrGo" style="background:var(--neg)">초기화</button>
+  </div>
+</dialog>
+<dialog id="dlgDay" style="width:min(820px,96vw)">
+  <div class="dh"><h2 id="dayTitle"></h2><button type="button" class="btn sm" data-dclose>닫기</button></div>
+  <div class="db"><div class="dlist" id="dayList"></div></div>
+  <div class="df">
+    <button type="button" class="btn" id="dayRet">+ 반품</button>
+    <button type="button" class="btn" id="dayAd">+ 광고비 충전</button>
+    <span style="flex:1"></span>
+    <button type="button" class="btn" id="dayB">+ BUYMA 판매</button>
+    <button type="button" class="btn primary" id="dayS">+ 스마트스토어 판매</button>
+  </div>
+</dialog>
+<dialog id="dlgEv" style="width:min(760px,96vw)">
+  <form id="evFrm" method="dialog">
+    <div class="dh"><h2 id="evTitle"></h2><button type="button" class="btn sm" data-eclose>닫기</button></div>
+    <div class="db">
+      <div class="grid">
+        <div class="f"><label class="req">날짜</label><input type="date" name="date" required></div>
+        <div class="f s3" data-for="ret" style="grid-column:span 3"><label>관련 주문 <span class="muted" style="font-weight:500">고르면 상품명·환불액이 채워져요</span></label><select name="orderRef"></select></div>
+        <div class="f s2" data-for="ret"><label>상품명</label><input name="product"></div>
+        <div class="f" data-for="ret"><label>받은 반품배송비</label><div class="unit"><input name="retFee" class="num money" inputmode="numeric"><span>원</span></div></div>
+        <div class="f" data-for="ret"><label class="req">환불액 <span class="auto-tag" id="evRefundTag"></span></label><div class="unit"><input name="refund" class="num money" inputmode="numeric" required><span>원</span></div></div>
+        <div class="f s2" data-for="ret"><label>반품 처리비용 <span class="muted" style="font-weight:500">택배·배대지 등 실제 지출</span></label><div class="unit"><input name="cost" class="num money" inputmode="numeric"><span>원</span></div></div>
+        <div class="f" data-for="ret"><label>회수 재고 가치 <span class="muted" style="font-weight:500">재판매용 원가</span></label><div class="unit"><input name="stock" class="num money" inputmode="numeric"><span>원</span></div></div>
+        <div class="f" data-for="ret"><label>재고 처리</label><select name="stockStatus"><option>보관</option><option>재판매 예정</option><option>재판매 완료</option><option>폐기</option><option>재고 없음</option></select></div>
+        <div class="f s2" data-for="ad"><label>매체</label><input name="channel" list="adChList" placeholder="네이버 광고"></div>
+        <div class="f" data-for="ad"><label class="req">결제액 <span class="muted" style="font-weight:500">부가세 포함</span></label><div class="unit"><input name="paid" class="num money" inputmode="numeric" required><span>원</span></div></div>
+        <div class="f s2" data-for="ad"><label>무상 비즈머니 <span class="muted" style="font-weight:500">페이백·프로모션 (손익 미반영)</span></label><div class="unit"><input name="free" class="num money" inputmode="numeric"><span>원</span></div></div>
+        <div class="f s2" data-for="ad"><label>결제수단</label><input name="card" list="payList" placeholder="예: 사업용카드 1234"></div>
+        <div class="f s4"><label>메모</label><input name="memo"></div>
+      </div>
+      <div class="calc" id="evCalc" style="margin-top:18px"></div>
+    </div>
+    <div class="df">
+      <button type="button" class="btn danger" id="evDel">삭제</button>
+      <span style="flex:1"></span>
+      <button type="button" class="btn" data-eclose>취소</button>
+      <button type="submit" class="btn primary">저장</button>
+    </div>
+  </form>
+</dialog>
+<datalist id="adChList"><option>네이버 광고</option><option>쿠팡 광고</option><option>인스타그램 광고</option></datalist>
+<div class="toast" id="toast"></div>
+<datalist id="storeList"></datalist><datalist id="payList"></datalist>
+
+<script>
+const KEY='gmdh-ledger-v1', BKEY='gmdh-lastbackup', MKEY='gmdh-meta';
+let meta=(()=>{try{return JSON.parse(localStorage.getItem(MKEY))||{}}catch(e){return{}}})();
+meta={name:'내 장부',source:'직접 입력',...meta};
+function saveMeta(){try{localStorage.setItem(MKEY,JSON.stringify(meta))}catch(e){}if(window.scheduleFileSave)scheduleFileSave()}
+const MONEY=['A','fee','B','C','D','Bjpy','Cjpy'];
+const COLS=[ // 엑셀 컬럼 매핑
+  ['store','스토어명'],['orderDate','주문일자'],['payDate','결제일자'],['orderNo','주문번호'],['product','상품명'],['qty','수량'],
+  ['customer','고객성명'],['pccc','개인통관고유부호'],['A','고객결제액(A)'],['fee','마켓수수료'],['Bjpy','해외상점결제액(엔)'],['B','해외상점결제액(B)'],['payMethod','해외결제수단'],['Cjpy','배대지비용(엔)'],['rate','적용환율(100엔당)'],
+  ['C','배대지비용(C)'],['D','관부가세(D)'],['comm','구매대행수수료(A-B-C-D)'],['gen','과세유형'],['vat','부가세(일반과세자)'],['net','순이익(수수료-마켓수수료-부가세)'],
+  ['ev1','증빙_정산내역서'],['ev2','증빙_해외영수증'],['ev3','증빙_배대지내역'],['memo','비고']
+];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fmt=n=>(Math.round(n)||0).toLocaleString('ko-KR');
+const num=v=>{if(typeof v==='number')return v;const n=parseFloat(String(v??'').replace(/[^\d.-]/g,''));return isNaN(n)?0:n};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const comm=r=>num(r.A)-num(r.B)-num(r.C)-num(r.D);
+// 일반과세자로 기록된 주문(r.gen)만 부가세 납부: 수수료×10/110 − 마켓수수료×10/110 (간이과세자는 0)
+const vatOf=r=>r.gen?Math.round(Math.max(0,comm(r))*10/110)-Math.round(num(r.fee)*10/110):0;
+const net=r=>comm(r)-num(r.fee)-vatOf(r);
+const cls=n=>n<0?'neg':'';
+// 사업자 유형은 BUYMA 마진 계산기의 간이/일반과세자 선택을 따름
+const isGen=()=>true; // 일반과세자 고정
+const vatNote=()=>isGen()
+  ?'일반과세자 · 1기(1~6월) → 7월 신고, 2기(7~12월) → 다음해 1월 신고'
+  :'간이과세자 · 1~12월분을 다음해 1월에 한 번 신고 (7월은 세무서 예정고지)';
+const halfLabel=i=>isGen()?(i?'2기 (7~12월)':'1기 (1~6월)'):(i?'7~12월':'1~6월');
+
+let rows=load(), editId=null, sortK='orderDate', sortDir=-1;
+
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){warn('브라우저 저장소를 사용할 수 없습니다. 엑셀로 꼭 백업하세요.');return[]}}
+function save(){meta.changedAt=Date.now();saveMeta();try{localStorage.setItem(KEY,JSON.stringify(rows))}catch(e){warn('저장에 실패했습니다. 지금 엑셀로 내보내 백업하세요.')}render()}
+function warn(m){const n=$('#notice');n.textContent=m;n.classList.add('show')}
+
+/* ---------- 필터 ---------- */
+function filtered(){
+  const q=$('#q').value.trim().toLowerCase(), st=$('#fStore').value, fr=$('#fFrom').value, to=$('#fTo').value, ev=$('#fEv').checked;
+  return rows.filter(r=>{
+    if(st&&r.store!==st)return false;
+    if(fr&&r.orderDate<fr)return false;
+    if(to&&r.orderDate>to)return false;
+    if(ev&&r.ev1&&r.ev2&&r.ev3)return false;
+    if(q&&![r.orderNo,r.product,r.customer,r.memo,r.store,r.payMethod].join(' ').toLowerCase().includes(q))return false;
+    return true;
+  });
+}
+function totals(list){
+  const t={n:list.length,A:0,B:0,C:0,D:0,fee:0,comm:0,vat:0,net:0,evMiss:0};
+  list.forEach(r=>{['A','B','C','D','fee'].forEach(k=>t[k]+=num(r[k]));t.comm+=comm(r);t.vat+=vatOf(r);t.net+=net(r);if(!(r.ev1&&r.ev2&&r.ev3))t.evMiss++});
+  return t;
+}
+
+/* ---------- 렌더 ---------- */
+function render(){
+  const stores=[...new Set(rows.map(r=>r.store).filter(Boolean))].sort();
+  ['#fStore','#sStore'].forEach(id=>{const s=$(id),v=s.value;s.innerHTML='<option value="">전체 스토어</option>'+stores.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('')});
+  $('#storeList').innerHTML=stores.map(x=>`<option value="${esc(x)}">`).join('');
+  $('#payList').innerHTML=[...new Set(rows.map(r=>r.payMethod).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join('');
+
+  const list=filtered().sort((a,b)=>{
+    const va=sortK==='comm'?comm(a):sortK==='net'?net(a):a[sortK], vb=sortK==='comm'?comm(b):sortK==='net'?net(b):b[sortK];
+    const x=MONEY.includes(sortK)||sortK==='comm'||sortK==='net'?num(va)-num(vb):String(va??'').localeCompare(String(vb??''));
+    return x*sortDir || String(b.createdAt).localeCompare(String(a.createdAt));
+  });
+  const t=totals(list);
+  $('#kpis').innerHTML=[
+    ['건수',fmt(t.n)+'건'+(t.evMiss?` <span style="font-size:15px;color:var(--warn);font-weight:700">증빙미완 ${t.evMiss}</span>`:'')],
+    ['고객결제 합계 (A)',fmt(t.A)],['매입·비용 합계 (B+C+D)',fmt(t.B+t.C+t.D)],
+    ['신고매출 (대행수수료)',fmt(t.comm),1],[t.vat?'마켓 수수료 · 부가세':'마켓 수수료',t.vat?`${fmt(t.fee)}<div class="muted" style="font-size:14px;font-weight:600">부가세 ${fmt(t.vat)}</div>`:fmt(t.fee)],['순이익',`<span class="${cls(t.net)}">${fmt(t.net)}</span>`]
+  ].map(([l,v,h])=>`<div class="kpi${h?' hl':''}"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+
+  $$('#tbl th[data-k]').forEach(th=>{th.textContent=th.textContent.replace(/ [▲▼]$/,'');if(th.dataset.k===sortK)th.textContent+=sortDir>0?' ▲':' ▼'});
+  $('#tbl tbody').innerHTML=list.map(r=>`<tr data-id="${r.id}">
+    <td>${esc(r.orderDate)}</td><td><span class="store-tag">${esc(r.store)}</span></td><td>${esc(r.orderNo)}</td>
+    <td class="trunc" title="${esc(r.product)}">${esc(r.product)}${num(r.qty)>1?` <span class="muted">×${num(r.qty)}</span>`:''}</td>
+    <td>${esc(r.customer)}</td>
+    <td class="n">${fmt(num(r.A))}</td><td class="n">${fmt(num(r.B))}${num(r.Bjpy)?`<span class="yen">${fmt(num(r.Bjpy))}엔</span>`:''}</td><td class="n">${fmt(num(r.C))}${num(r.Cjpy)?`<span class="yen">${fmt(num(r.Cjpy))}엔</span>`:''}</td><td class="n">${fmt(num(r.D))}</td>
+    <td class="n ${cls(comm(r))}"><b>${fmt(comm(r))}</b></td><td class="n">${fmt(num(r.fee))}</td><td class="n">${r.gen?fmt(vatOf(r)):'<span class="muted">간이</span>'}</td><td class="n ${cls(net(r))}">${fmt(net(r))}</td>
+    <td><span class="ev">${['ev1','ev2','ev3'].map((k,i)=>`<button data-ev="${k}" class="${r[k]?'ok':''}" title="${['정산내역서','해외영수증','배대지내역'][i]}">${['정','영','배'][i]}</button>`).join('')}</span></td>
+    <td><button class="btn sm" data-edit>수정</button></td></tr>`).join('');
+  $('#tbl tfoot').innerHTML=list.length?`<tr><td colspan="5">합계 (${t.n}건)</td><td class="n">${fmt(t.A)}</td><td class="n">${fmt(t.B)}</td><td class="n">${fmt(t.C)}</td><td class="n">${fmt(t.D)}</td><td class="n ${cls(t.comm)}">${fmt(t.comm)}</td><td class="n">${fmt(t.fee)}</td><td class="n">${fmt(t.vat)}</td><td class="n ${cls(t.net)}">${fmt(t.net)}</td><td colspan="2"></td></tr>`:'';
+  $('#empty').hidden=!!list.length;
+  renderSum();
+  const lb=(()=>{try{return localStorage.getItem(BKEY)}catch(e){return null}})();
+  $('#lastBackup').textContent=window.fileState==='ok'?'':lb?`마지막 백업 ${lb}`:(rows.length?'아직 백업 안 함':'');
+  $('#btnName').textContent='📒 '+meta.name+' ✎'; $('#btnName').classList.toggle('test',/테스트|test/i.test(meta.name));
+  $('#srcInfo').textContent=`데이터 출처: ${meta.source}${meta.sourceAt?' · '+meta.sourceAt:''} · 스마트스토어 ${rows.length}건`;
+  if(window.PLAT==='all')document.title=`${meta.name} - 전체 판매 장부`;
+  if(window.aReady)aRender();
+}
+
+function sumTable(groups){
+  const head=`<thead><tr><th>기간</th><th class="n">건수</th><th class="n">A</th><th class="n">B+C+D</th><th class="n">대행수수료</th><th class="n">마켓수수료</th><th class="n">부가세</th><th class="n">순이익</th></tr></thead>`;
+  const all=[];
+  const body=groups.map(([label,list])=>{all.push(...list);const t=totals(list);
+    return `<tr><td>${label}</td><td class="n">${t.n}</td><td class="n">${fmt(t.A)}</td><td class="n">${fmt(t.B+t.C+t.D)}</td><td class="n ${cls(t.comm)}"><b>${fmt(t.comm)}</b></td><td class="n">${fmt(t.fee)}</td><td class="n">${fmt(t.vat)}</td><td class="n ${cls(t.net)}">${fmt(t.net)}</td></tr>`}).join('');
+  const T=totals(all);
+  return head+`<tbody>${body}</tbody><tfoot><tr><td>합계</td><td class="n">${T.n}</td><td class="n">${fmt(T.A)}</td><td class="n">${fmt(T.B+T.C+T.D)}</td><td class="n">${fmt(T.comm)}</td><td class="n">${fmt(T.fee)}</td><td class="n">${fmt(T.vat)}</td><td class="n">${fmt(T.net)}</td></tr></tfoot>`;
+}
+function periodGroups(year,store){
+  const src=rows.filter(r=>(r.orderDate||'').startsWith(year)&&(!store||r.store===store));
+  const m=k=>src.filter(r=>+r.orderDate.slice(5,7)===k);
+  const months=[...Array(12)].map((_,i)=>[`${i+1}월`,m(i+1)]);
+  const quarters=[1,2,3,4].map(q=>[`${q}분기 (${q*3-2}~${q*3}월)`,src.filter(r=>Math.ceil(+r.orderDate.slice(5,7)/3)===q)]);
+  const halves=[[halfLabel(0),src.filter(r=>+r.orderDate.slice(5,7)<=6)],[halfLabel(1),src.filter(r=>+r.orderDate.slice(5,7)>6)]];
+  return {months,quarters,halves};
+}
+function renderSum(){
+  const years=[...new Set(rows.map(r=>(r.orderDate||'').slice(0,4)).filter(Boolean))];
+  const cy=String(new Date().getFullYear()); if(!years.includes(cy))years.push(cy); years.sort().reverse();
+  const s=$('#sYear'),v=s.value||cy; s.innerHTML=years.map(y=>`<option${y===v?' selected':''}>${y}</option>`).join('');
+  const g=periodGroups(s.value,$('#sStore').value);
+  $('#tHh').innerHTML=`${isGen()?'부가세 신고 기간 (반기)':'반기 합계'} <span class="muted" style="font-weight:400;font-size:12px">${vatNote()}</span>`;
+  $('#tH').innerHTML=sumTable(g.halves);$('#tQ').innerHTML=sumTable(g.quarters);$('#tM').innerHTML=sumTable(g.months);
+}
+
+/* ---------- 입력 폼 ---------- */
+const frm=$('#frm'), dlg=$('#dlg');
+const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+let formGen=false;
+function openForm(r){
+  editId=r?.id||null; frm.reset(); formGen=r?!!r.gen:isGen();
+  $('#dlgTitle').textContent=r?'주문 수정':'주문 추가'; $('#btnDel').hidden=!r; $('#keepWrap').hidden=!!r;
+  const d=r||{orderDate:today(),payDate:today(),qty:1,store:rows[0]?.store||'',payMethod:rows[0]?.payMethod||''};
+  for(const el of frm.elements){if(!el.name)continue;
+    if(el.type==='checkbox')el.checked=!!d[el.name];
+    else el.value=MONEY.includes(el.name)?(d[el.name]!==undefined&&d[el.name]!==''&&!(el.name.endsWith('jpy')&&!num(d[el.name]))?fmt(num(d[el.name])):''):el.name==='rate'?(num(d.rate)||''):(d[el.name]??'');}
+  if(!num(frm.rate.value))frm.rate.value=typeof applyRate==='function'?applyRate():'';
+  ['B','C'].forEach(k=>{const y=num(d[k+'jpy']),w=num(d[k]);frm[k].dataset.manual=(w&&(!y||w!==Math.round(y*num(frm.rate.value)/100)))?'1':''});
+  conv(); calc(); dlg.showModal(); (r?frm.A:frm.orderNo).focus();
+}
+function conv(){ // 엔 → 원 자동 환산 (직접 고친 칸은 유지)
+  const rate=num(frm.rate.value);
+  ['B','C'].forEach(k=>{const el=frm[k],y=num(frm[k+'jpy'].value),tag=$('#tag'+k);
+    if(el.dataset.manual!=='1')el.value=y&&rate?fmt(Math.round(y*rate/100)):'';
+    tag.className='auto-tag '+(el.dataset.manual==='1'?'man':'auto');tag.textContent=el.dataset.manual==='1'?'직접 입력':'자동 환산';});
+}
+function calc(){
+  const r={gen:formGen};MONEY.forEach(k=>r[k]=num(frm[k].value));
+  const c=comm(r),n=net(r),vt=vatOf(r);
+  $('#calc').innerHTML=`<div><div class="l">4. 구매대행 수수료 (신고 매출)</div><div class="v ${cls(c)}">${fmt(c)}원</div></div>
+    <div><div class="l">순이익 (마켓수수료${formGen?' · 부가세':''} 차감)</div><div class="v ${cls(n)}">${fmt(n)}원</div></div>
+    <div><div class="l">마진율 (수수료 ÷ A)</div><div class="v">${r.A?(c/r.A*100).toFixed(1):'0.0'}%</div></div>
+    <div class="formula">${fmt(r.A)} − (${fmt(r.B)} + ${fmt(r.C)} + ${fmt(r.D)}) = ${fmt(c)}${c<0?' · 역마진입니다. 금액을 확인하세요.':''}${formGen?`<br>일반과세자 부가세: ${fmt(Math.round(Math.max(0,c)*10/110))} − 마켓수수료분 ${fmt(Math.round(r.fee*10/110))} = <b>${fmt(vt)}원</b>`:' · 간이과세자 (부가세 계산 안 함)'}</div>`;
+}
+frm.addEventListener('input',e=>{
+  if(e.target.classList.contains('money')){const el=e.target,raw=el.value.replace(/[^\d-]/g,'');el.value=raw===''||raw==='-'?raw:Number(raw).toLocaleString('ko-KR')}
+  if(e.target.name==='pccc')e.target.value=e.target.value.toUpperCase();
+  if(e.target.name==='rate')e.target.value=e.target.value.replace(/[^\d.]/g,'');
+  if(e.target.name==='B'||e.target.name==='C')e.target.dataset.manual=e.target.value.trim()?'1':'';
+  conv();
+  calc();
+});
+frm.addEventListener('submit',e=>{
+  e.preventDefault();
+  const d={};for(const el of frm.elements){if(!el.name)continue;d[el.name]=el.type==='checkbox'?el.checked:MONEY.includes(el.name)||el.name==='qty'||el.name==='rate'?num(el.value):el.value.trim()}
+  const dup=rows.find(r=>r.orderNo===d.orderNo&&r.id!==editId);
+  if(dup&&!confirm(`주문번호 ${d.orderNo}가 이미 있습니다. 그래도 저장할까요?`))return;
+  if(editId){const i=rows.findIndex(r=>r.id===editId);rows[i]={...rows[i],...d}}
+  else rows.push({id:crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random(),createdAt:new Date().toISOString(),gen:formGen,...d});
+  save();
+  if(!editId&&$('#keepOpen').checked){const keep={store:d.store,orderDate:d.orderDate,payDate:d.payDate,payMethod:d.payMethod};openForm();Object.entries(keep).forEach(([k,v])=>frm[k].value=v);frm.orderNo.focus()}
+  else dlg.close();
+});
+$('#btnDel').onclick=()=>{if(confirm('이 주문을 삭제할까요? 되돌릴 수 없습니다.')){rows=rows.filter(r=>r.id!==editId);save();dlg.close()}};
+$$('[data-close]').forEach(b=>b.onclick=()=>dlg.close());
+
+/* ---------- 이벤트 ---------- */
+$('#btnAdd').onclick=()=>openForm();
+$('#tbl tbody').addEventListener('click',e=>{
+  const tr=e.target.closest('tr');if(!tr)return;const r=rows.find(x=>x.id===tr.dataset.id);
+  const ev=e.target.closest('[data-ev]');
+  if(ev){r[ev.dataset.ev]=!r[ev.dataset.ev];save();return}
+  if(e.target.closest('[data-edit]'))openForm(r);
+});
+$('#tbl tbody').addEventListener('dblclick',e=>{const tr=e.target.closest('tr');if(tr&&!e.target.closest('button'))openForm(rows.find(x=>x.id===tr.dataset.id))});
+$$('#tbl th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k;sortDir=sortK===k?-sortDir:-1;sortK=k;render()});
+['#q','#fStore','#fFrom','#fTo','#fEv','#sYear','#sStore'].forEach(id=>$(id).addEventListener('input',render));
+$('#fQuick').onchange=e=>{
+  const d=new Date(),y=d.getFullYear(),m=d.getMonth(),p=n=>String(n).padStart(2,'0'),last=(y,m)=>new Date(y,m+1,0).getDate();
+  const set=(a,b)=>{$('#fFrom').value=a;$('#fTo').value=b};
+  ({thisMonth:()=>set(`${y}-${p(m+1)}-01`,`${y}-${p(m+1)}-${last(y,m)}`),
+    lastMonth:()=>{const ly=m?y:y-1,lm=m?m-1:11;set(`${ly}-${p(lm+1)}-01`,`${ly}-${p(lm+1)}-${last(ly,lm)}`)},
+    h1:()=>set(`${y}-01-01`,`${y}-06-30`),h2:()=>set(`${y}-07-01`,`${y}-12-31`),
+    year:()=>set(`${y}-01-01`,`${y}-12-31`),lastYear:()=>set(`${y-1}-01-01`,`${y-1}-12-31`)})[e.target.value]?.();
+  e.target.value='';render();
+};
+$('#btnReset').onclick=()=>{['#q','#fFrom','#fTo'].forEach(i=>$(i).value='');$('#fStore').value='';$('#fEv').checked=false;render()};
+$$('.tab').forEach(t=>t.onclick=()=>{const g=t.parentElement,c=g.parentElement;g.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));c.querySelectorAll(':scope > .panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+t.dataset.tab))});
+function setApp(a){document.body.dataset.app=a;$$('.apptab').forEach(x=>x.classList.toggle('on',x.dataset.app===a));document.title=window.PLAT==='all'?`${meta.name} - 전체 판매 장부`:(window.PLAT==='buyma'?'BUYMA ':'스마트스토어 ')+(a==='calc'?'마진 계산기':'판매 리스트');if(a!=='ledger')try{localStorage.setItem('gmdh-app',a)}catch(e){}}
+$$('.apptab').forEach(t=>t.onclick=()=>setApp(t.dataset.app));
+document.addEventListener('keydown',e=>{if(e.key==='n'&&e.altKey){e.preventDefault();openForm()}});
+
+/* ---------- 엑셀 ---------- */
+function toRow(r){const o={};COLS.forEach(([k,h])=>{o[h]=k==='comm'?comm(r):k==='net'?net(r):k==='vat'?vatOf(r):k==='gen'?(r.gen?'일반':'간이'):k.startsWith('ev')?(r[k]?'O':''):MONEY.includes(k)||k==='qty'||k==='rate'?(r[k]===undefined||r[k]===''?'':num(r[k])):(r[k]??'')});return o}
+$('#btnExport').onclick=()=>{
+  if(typeof XLSX==='undefined'){ // 오프라인 대비: JSON 백업
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(rows,null,1)],{type:'application/json'}));a.download=`구매대행장부_${safeName()}_${today()}.json`;a.click();
+    warn('엑셀 라이브러리를 불러오지 못해(인터넷 연결 확인) JSON으로 백업했습니다. 불러오기에서 그대로 복원할 수 있습니다.');markBackup();return}
+  const wb=XLSX.utils.book_new();
+  const sorted=[...rows].sort((a,b)=>String(a.orderDate).localeCompare(String(b.orderDate)));
+  const ws=XLSX.utils.json_to_sheet(sorted.map(toRow),{header:COLS.map(c=>c[1])});
+  ws['!cols']=COLS.map(([k])=>({wch:['product','memo'].includes(k)?30:['comm','net'].includes(k)?22:14}));
+  XLSX.utils.book_append_sheet(wb,ws,'장부');
+  const years=[...new Set(rows.map(r=>(r.orderDate||'').slice(0,4)).filter(Boolean))].sort();
+  const sumRows=[];
+  years.forEach(y=>{const g=periodGroups(y,'');[...g.halves,...g.quarters,...g.months].forEach(([l,list])=>{const t=totals(list);
+    sumRows.push({'연도':y,'기간':l,'건수':t.n,'고객결제액(A)':t.A,'해외결제(B)':t.B,'배대지(C)':t.C,'관부가세(D)':t.D,'구매대행수수료':t.comm,'마켓수수료':t.fee,'부가세':t.vat,'순이익':t.net})})});
+  const ws2=XLSX.utils.json_to_sheet(sumRows);ws2['!cols']=[{wch:6},{wch:28},...Array(8).fill({wch:14})];
+  XLSX.utils.book_append_sheet(wb,ws2,'기간별합계');
+  XLSX.writeFile(wb,`구매대행장부_${safeName()}_${today()}.xlsx`);markBackup();
+};
+function toDate(v){ // 엑셀 날짜(일련번호) 또는 '2026.10.06' 같은 문자열 → YYYY-MM-DD
+  if(typeof v==='number'&&v>0)return new Date(Math.round((v-25569)*864e5)).toISOString().slice(0,10);
+  const m=String(v??'').trim().match(/^(\d{4})[-./년\s]*(\d{1,2})[-./월\s]*(\d{1,2})/);
+  return m?`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`:String(v??'').trim();
+}
+function markBackup(){meta.backupAt=Date.now();saveMeta();try{localStorage.setItem(BKEY,new Date().toLocaleString('ko-KR'))}catch(e){}render()}
+const safeName=()=>meta.name.replace(/[\\/:*?"<>|]/g,'_');
+$('#btnName').onclick=()=>{const n=prompt('장부 이름',meta.name);if(n&&n.trim()){meta.name=n.trim();saveMeta();render()}};
+/* 초기화 */
+const dlgC=$('#dlgClear');
+$('#btnClear').onclick=()=>{
+  $('#clrRowsN').textContent=`(${meta.name} · ${rows.length}건)`;$('#clrItemsN').textContent=`(${items.length}개)`;$('#clrBItemsN').textContent=`(${bitems.length}개)`;$('#clrBItems').checked=false;$('#clrBRowsN').textContent=`(${brows.length}건)`;$('#clrBRows').checked=false;
+  $('#clrRows').checked=true;$('#clrItems').checked=true;$('#clrCalc').checked=false;$('#clrNew').value='';$('#clrNameWrap').hidden=false;
+  $('#clrCalN').textContent=`(${cevents.length}건)`;$('#clrCal').checked=window.PLAT==='all';
+  if(window.PLAT==='all'){$('#clrItems').checked=false;$('#clrBRows').checked=true}
+  if(window.PLAT==='buyma'){$('#clrRows').checked=false;$('#clrItems').checked=false;$('#clrBRows').checked=true;$('#clrBItems').checked=true;$('#clrNameWrap').hidden=true}
+  const msg=[];
+  if(window.fileState==='ok'||window.fileState==='reconnect')msg.push(`연결된 저장파일 <b>${esc(fileHandle.name)}</b>은 지워지지 않고 그대로 남아요. 초기화하면 연결만 해제되니, 다시 쓰려면 📂 불러오기로 열면 돼요.`);
+  else if(rows.length||items.length)msg.push('저장파일에 백업해 두지 않았다면 <b>백업 받고 초기화</b>를 누르세요.');
+  $('#clrWarn').innerHTML=msg.join('<br>');$('#clrWarn').style.display=msg.length?'block':'none';
+  dlgC.showModal();
+};
+$('#clrRows').onchange=e=>$('#clrNameWrap').hidden=!e.target.checked;
+function doClear(){
+  const R=$('#clrRows').checked,I=$('#clrItems').checked,C=$('#clrCalc').checked;
+  if(!R&&!I&&!C&&!$('#clrBItems').checked&&!$('#clrBRows').checked&&!$('#clrCal').checked)return toast('지울 항목을 하나 이상 고르세요');
+  // 저장파일은 보존: 연결만 해제해서 빈 내용으로 덮어쓰지 않게
+  if(window.fileState&&window.fileState!=='none'){fileState='none';fileHandle=null;try{idbDel('fileHandle')}catch(e){}chip()}
+  if(R){rows=[];meta={name:$('#clrNew').value.trim()||'내 장부',source:'직접 입력'};try{localStorage.removeItem(BKEY)}catch(e){}
+    ['#q','#fFrom','#fTo'].forEach(i=>$(i).value='');$('#fStore').value='';$('#fEv').checked=false;save()}
+  if(I){items=[];saveItems()}
+  if($('#clrBItems').checked){bitems=[];saveItems()}
+  if($('#clrBRows').checked){brows=[];bSave()}
+  if($('#clrCal').checked){cevents=[];cSave()}
+  if(C){mc={...MDEF};try{localStorage.setItem(MKEY2,JSON.stringify(mc))}catch(e){}mFill();mCalc()}
+  dlgC.close();toast('초기화했어요');
+}
+$('#clrGo').onclick=doClear;
+$('#clrBackup').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(snapshot(),null,1)],{type:'application/json'}));
+  a.download=`구매대행_백업_${today()}.json`;a.click();setTimeout(doClear,300)};
+$$('[data-cclose]').forEach(b=>b.onclick=()=>dlgC.close());
+$('#btnImport').onclick=()=>$('#fileImport').click();
+$('#fileImport').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;e.target.value='';
+  try{
+    let data;
+    if(f.name.endsWith('.json'))data=JSON.parse(await f.text());
+    else{
+      if(typeof XLSX==='undefined')return alert('엑셀 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.');
+      const wb=XLSX.read(new Uint8Array(await f.arrayBuffer()),{type:'array'});
+      const json=XLSX.utils.sheet_to_json(wb.Sheets['장부']||wb.Sheets[wb.SheetNames[0]],{defval:''});
+      data=json.map(o=>{const r={};COLS.forEach(([k,h])=>{if(k==='comm'||k==='net'||k==='vat')return;let v=o[h];if(k==='gen'){r.gen=String(v??'').trim()==='일반';return}
+        if(k==='orderDate'||k==='payDate')v=toDate(v);
+        r[k]=k.startsWith('ev')?!!String(v).trim():MONEY.includes(k)||k==='qty'||k==='rate'?num(v):String(v??'').trim()});return r});
+    }
+    data=data.filter(r=>r.orderNo||r.A).map(r=>({id:r.id||(crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random()),createdAt:r.createdAt||new Date().toISOString(),...r}));
+    const mode=rows.length?confirm(`${data.length}건을 읽었습니다.\n현재 장부: ${meta.name} (${rows.length}건)\n\n[확인] 현재 장부를 이 파일로 교체\n[취소] 기존 장부에 합치기 (주문번호 중복은 건너뜀)`):true;
+    const stamp=new Date().toLocaleString('ko-KR');
+    if(mode){rows=data;meta={name:f.name.replace(/\.(xlsx|xls|json)$/i,'').replace(/^구매대행장부_/,'').replace(/_\d{4}-\d{2}-\d{2}$/,''),source:`${f.name} 불러옴`,sourceAt:stamp,backupAt:Date.now()};
+      try{localStorage.setItem(BKEY,stamp)}catch(e){}}
+    else{meta.source=`${meta.source} + ${f.name} 합침`;meta.sourceAt=stamp;const have=new Set(rows.map(r=>r.orderNo));const add=data.filter(r=>!have.has(r.orderNo));rows.push(...add);alert(`${add.length}건 추가, ${data.length-add.length}건 중복 건너뜀`)}
+    save();
+    if(mode){meta.backupAt=Date.now()+1;saveMeta();render()}
+  }catch(err){alert('파일을 읽지 못했습니다: '+err.message)}
+};
+
+/* ---------- 마진 계산기 ---------- */
+const LIST_UP=50000; // 스마트스토어 표시 정가 = 판매가 + 5만원 (할인 표시용)
+const MKEY2='gmdh-calc', MDEF={name:'',jpy:5000,baseRate:920,fxFee:3,shipJpy:900,feeRate:5.5,mode:'price',salePrice:75000,targetRate:20,targetFixed:10000,custShip:0,compPrice:0,compShip:0};
+let mc=(()=>{try{const o=JSON.parse(localStorage.getItem(MKEY2))||{};
+  if(o.salePrice===undefined)o.mode='price'; // 판매가 입력 모드를 기본으로
+  if(o.ship!==undefined&&o.shipJpy===undefined)o.shipJpy=Math.round(o.ship/((o.baseRate||MDEF.baseRate)*(1+(o.fxFee??MDEF.fxFee)/100))*100); // 예전 원화 입력값 이전
+  delete o.ship;return{...MDEF,...o}}catch(e){return{...MDEF}}})();
+const mIn=k=>document.querySelector(`[data-m="${k}"]`);
+const DEC=['baseRate','fxFee','feeRate','targetRate'];
+const applyRate=()=>Math.round(mc.baseRate*(1+mc.fxFee/100)*100)/100;
+function mFill(){Object.keys(MDEF).forEach(k=>{const el=mIn(k);if(el)el.value=k==='name'?mc[k]:DEC.includes(k)?mc[k]:fmt(mc[k])});
+}
+function mCalc(){
+  mc.rate=applyRate(); $('#mRate').textContent=mc.rate.toLocaleString('ko-KR')+'원';
+  const toK=y=>y*mc.rate/100, toY=w=>mc.rate?w/mc.rate*100:0;
+  mc.ship=toK(mc.shipJpy);
+  $('#mJpyKrw').textContent=`≈ ${fmt(toK(mc.jpy))}원`; $('#mShipKrw').textContent=`≈ ${fmt(mc.ship)}원`;
+  mc.mode='price';
+  const v={...mc}; const cost=v.jpy*v.rate/100+v.ship; const f=v.feeRate/100;
+  let pay, err='';
+  if(v.mode==='price'){if(!v.salePrice)err='판매가를 입력하세요.';else pay=v.salePrice+v.custShip}
+  else if(v.mode==='rate'){const t=(v.feeRate+v.targetRate)/100; if(t>=1)err='마켓 수수료율 + 목표 마진율이 100% 이상이라 계산할 수 없습니다.'; else pay=cost/(1-t)}
+  else{if(f>=1)err='마켓 수수료율이 100% 이상입니다.'; else pay=(cost+v.targetFixed)/(1-f)}
+  $('#mErr').textContent=err;$('#mErr').style.display=err?'block':'none';
+  if(err){$('#mListShow').textContent='';$('#mBig').innerHTML='';$('#mStack').innerHTML='';$('#mBreak').innerHTML='';$('#mLegend').innerHTML='';return null}
+  const list=v.mode==='price'?v.salePrice:Math.max(0,Math.ceil((pay-v.custShip)/100)*100);           // 상품 등록가 (100원 단위 올림)
+  const gen=isGen(); $$('#mBiz button').forEach(x=>x.classList.toggle('on',x.dataset.biz===(gen?'general':'simple')));
+  const total=list+v.custShip, fee=Math.round(total*f), commM=total-cost;
+  const vatOut=gen?Math.round(Math.max(0,commM)*10/110):0, vatIn=gen?Math.round(fee*10/110):0, vatPay=vatOut-vatIn; // 일반과세자: 수수료×10/110 − 마켓수수료×10/110
+  const profit=total-fee-cost-vatPay, margin=total?profit/total*100:0;
+  const r={cost,goods:v.jpy*v.rate/100,list,total,fee,profit,margin,gen,vatOut,vatIn,vatPay};
+  // 경쟁사 비교: 경쟁사 총액(판매가+배송비) vs 내 고객 결제금액, 경쟁사 가격에 맞췄을 때 순이익
+  {const cp=num(v.compPrice), cs=num(v.compShip), box=$('#mComp');
+   const mbox=$('#mCompMargin');
+   if(!cp){box.textContent='경쟁사 판매가를 넣으면 총 결제금액을 보여 드려요';mbox.textContent='경쟁사 판매가를 넣으면 남는 돈을 계산해 드려요'}
+   else{const ct=cp+cs, d=total-ct, fee2=Math.round(ct*f), vat2=gen?Math.round(Math.max(0,ct-cost)*10/110)-Math.round(fee2*10/110):0, p2=ct-fee2-cost-vat2, m2=ct?p2/ct*100:0;
+     box.innerHTML=`<span class="comp-big">경쟁사 총 <b>${fmt(ct)}원</b></span><span class="muted">${fmt(cp)} + 배송 ${fmt(cs)}</span>`;
+     mbox.innerHTML=`<span class="comp-big ${p2<0?'loss':''}">마진 <b>${m2.toFixed(1)}%</b> · <b>${p2<0?'':'+'}${fmt(p2)}원</b></span><span class="muted">${p2<0?'이 가격이면 손해예요':'수수료'+(vat2>0?'·부가세':'')+' 빼고 남는 돈'} · ${d>0?'내가 '+fmt(d)+'원 더 비쌈':d<0?'내가 '+fmt(-d)+'원 더 쌈':'내 가격과 같음'}</span>`}}
+  $('#mListShow').innerHTML=`표시 정가 <s>${fmt(list+LIST_UP)}원</s> → <b>${fmt(list)}원</b> 판매중`;
+  const loss=profit<0;
+  $('#mBig').innerHTML=`
+    <div class="kpi hero${loss?' loss':''}">
+      <div><div class="l">예상 순이익</div><div class="v">${fmt(profit)}<small>원</small></div><div class="sub">≈ ${fmt(toY(profit))}엔</div></div>
+      <div class="hero-r"><div class="l">실제 마진율</div><div class="v">${margin.toFixed(1)}<small>%</small></div><div class="sub">수수료·원가 차감 후</div></div>
+    </div>`;
+  const parts=[['상품원가',r.goods,'#1f4f36'],['배대지비',v.ship,'#5f8f75'],['마켓수수료',fee,'#b9d6c6'],...(vatPay>0?[['부가세',vatPay,'#8aa79a']]:[]),['순이익',Math.max(0,profit),'#03c75a']];
+  const sum=parts.reduce((a,p)=>a+p[1],0)||1;
+  $('#mStack').innerHTML=parts.map(([l,x,c])=>`<div title="${l} ${fmt(x)}원 (≈${fmt(toY(x))}엔)" style="width:${x/sum*100}%;background:${c}"></div>`).join('');
+  $('#mLegend').innerHTML=parts.map(([l,x,c])=>`<span><i style="background:${c}"></i>${l} ${(x/sum*100).toFixed(1)}%</span>`).join('');
+  const Y=y=>`${fmt(y)}엔`, eY=w=>`≈ ${fmt(toY(w))}엔`;
+  const row=(l,y,w,c='',neg='')=>`<tr class="${c}"><td>${l}</td><td class="y">${y}</td><td class="n ${neg}">${w}</td></tr>`;
+  $('#mBreak').innerHTML=`<tr><th>항목 <span class="muted" style="font-weight:400">(적용환율 ${v.rate}원/100엔)</span></th><th>엔</th><th>원</th></tr>`
+    +row('상품원가 (해외마켓)',Y(v.jpy),fmt(r.goods)+'원')
+    +row('배대지 비용',Y(v.shipJpy),fmt(v.ship)+'원')
+    +row('총 매입원가',Y(v.jpy+v.shipJpy),fmt(cost)+'원','tot')
+    +row('상품 등록가 <span class="muted">(100원 단위 올림)</span>',eY(list),fmt(list)+'원')
+    +row('고객 부과 배송비',eY(v.custShip),fmt(v.custShip)+'원')
+    +row('고객 총 결제금액',eY(total),fmt(total)+'원','tot')
+    +row(`마켓 수수료 <span class="muted">(${v.feeRate}%)</span>`,eY(fee),'−'+fmt(fee)+'원')
+    +row('총 매입원가',Y(v.jpy+v.shipJpy),'−'+fmt(cost)+'원')
+    +(gen?row(`부가세 납부 <span class="muted">(일반과세자 · 수수료 ${fmt(commM)}×10/110 = ${fmt(vatOut)} − 마켓수수료분 ${fmt(vatIn)})</span>`,eY(vatPay),'−'+fmt(vatPay)+'원'):'')
+    +row(`예상 순이익 <span class="muted">(마진율 ${margin.toFixed(1)}%)</span>`,eY(profit),fmt(profit)+'원','tot',cls(profit));
+  return r;
+}
+$('#p-calc').addEventListener('input',e=>{
+  const el=e.target;
+  if(el.name==='mMode')mc.mode=el.value;
+  else if(el.dataset.m){const k=el.dataset.m;
+    if(k==='name')mc.name=el.value;
+    else if(DEC.includes(k)){el.value=el.value.replace(/[^\d.]/g,'');mc[k]=num(el.value)}
+    else{const raw=el.value.replace(/[^\d]/g,'');el.value=raw?Number(raw).toLocaleString('ko-KR'):'';mc[k]=num(raw)}}
+  try{localStorage.setItem(MKEY2,JSON.stringify(mc))}catch(e){}
+  scheduleFileSave();
+  mCalc();
+});
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),1600)}
+$('#mCopy').onclick=async()=>{
+  const r=mCalc();if(!r)return;
+  const txt=`[마진 계산 결과]
+표시 정가: ${fmt(r.list+LIST_UP)}원 → ${fmt(r.list)}원 판매중
+판매가(상품 등록가): ${fmt(r.list)}원${mc.custShip?` (+배송비 ${fmt(mc.custShip)}원)`:' (무료배송)'}
+고객 결제금액: ${fmt(r.total)}원
+- 상품원가: ${fmt(mc.jpy)}엔 = ${fmt(r.goods)}원 (적용환율 ${mc.rate}원/100엔)
+  (기준환율 ${mc.baseRate}원 + 수수료 ${mc.fxFee}%)
+- 배대지비: ${fmt(mc.shipJpy)}엔 = ${fmt(mc.ship)}원
+- 마켓수수료(${mc.feeRate}%): ${fmt(r.fee)}원
+${r.gen?`- 부가세 납부(일반과세자): ${fmt(r.vatPay)}원 (수수료분 ${fmt(r.vatOut)} − 마켓수수료분 ${fmt(r.vatIn)})\n`:''}예상 순이익: ${fmt(r.profit)}원 (마진율 ${r.margin.toFixed(1)}%)`;
+  try{await navigator.clipboard.writeText(txt)}catch(e){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}
+  toast('클립보드에 복사했습니다');
+};
+$('#mReset').onclick=()=>{mc={...MDEF};try{localStorage.removeItem(MKEY2)}catch(e){}mFill();mCalc();toast('기본값으로 초기화했습니다')};
+$('#mToLedger').onclick=()=>{
+  const r=mCalc();if(!r)return; setPlat('all'); setSeg('smart'); openForm(); // 장부는 '전체 판매 장부' 탭 안에 있음
+  const set=(k,v)=>frm[k].value=MONEY.includes(k)?fmt(v):v;
+  set('A',r.total);set('fee',r.fee);set('Bjpy',mc.jpy);set('Cjpy',mc.shipJpy);frm.rate.value=mc.rate;frm.B.dataset.manual='';frm.C.dataset.manual='';set('D',0);conv();
+  set('memo',`기준환율 ${mc.baseRate}원 + 수수료 ${mc.fxFee}%`);calc();frm.orderNo.focus();
+};
+mFill();mCalc();
+try{if(localStorage.getItem('gmdh-detail')==='1')$('#mDetail').open=true}catch(e){}
+$('#mDetail').addEventListener('toggle',e=>{try{localStorage.setItem('gmdh-detail',e.target.open?'1':'0')}catch(_){}});
+
+/* ---------- 라이트/다크 모드 ---------- */
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+function themeBtn(){const d=isDark();$('#btnTheme').textContent=d?'☀️':'🌙';$('#btnTheme').title=d?'라이트 모드로 전환':'다크 모드로 전환'}
+$('#btnTheme').onclick=()=>{const t=isDark()?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('gmdh-theme',t)}catch(e){}themeBtn()};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeBtn);
+themeBtn();
+
+
+/* ---------- 저장 가능 여부 확인 ---------- */
+const STORE_OK=(()=>{try{const k='__gmdh_t';localStorage.setItem(k,'1');const ok=localStorage.getItem(k)==='1';localStorage.removeItem(k);return ok}catch(e){return false}})();
+if(!STORE_OK){const w=$('#storeWarn');w.innerHTML='⚠️ 지금 화면에서는 브라우저 저장이 막혀 있어서 <b>입력한 내용이 저장되지 않아요.</b> 바탕화면의 <b>구매대행_장부.html</b>을 크롬에서 직접 열어 사용해 주세요. (Claude 옆 패널 미리보기에서는 저장되지 않습니다)';w.classList.add('show');$('#notice').classList.remove('show')}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{})}catch(e){}
+
+/* ---------- 판매 리스트 (스마트스토어 / BUYMA 공용) ---------- */
+const IKEY='gmdh-items', BIKEY='gmdh-bitems';
+const migItems=a=>(a||[]).map(it=>{if(it.link!==undefined&&it.rakuten===undefined&&it.smart===undefined){const l=it.link||'';if(/naver\.com|smartstore/i.test(l))it.smart=l;else if(l)it.rakuten=l;delete it.link}return it});
+let items=(()=>{try{return migItems(JSON.parse(localStorage.getItem(IKEY))||[])}catch(e){return[]}})();
+let bitems=(()=>{try{return JSON.parse(localStorage.getItem(BIKEY))||[]}catch(e){return[]}})();
+var PLAT=(()=>{try{return localStorage.getItem('gmdh-platform')||'smart'}catch(e){return'smart'}})();
+// 플랫폼별 필드 정의: price=판매가, cost=매입가, l1/l2=링크
+const PCFG={
+  smart:{price:'price',cost:'jpy',pU:'원',cU:'엔',pL:'판매가',cL:'일본 가격 (매입가)',l1:'rakuten',l2:'smart',l1N:'라쿠텐',l2N:'스마트스토어',l1C:'rk',l2C:'ss',l1P:'https://item.rakuten.co.jp/...',l2P:'https://smartstore.naver.com/...',conv:v=>typeof applyRate==='function'?`≈ ${fmt(v*applyRate()/100)}원`:''},
+  buyma:{price:'price',cost:'cost',pU:'엔',cU:'원',pL:'판매가 (BUYMA)',cL:'매입가 (한국)',l1:'src',l2:'buyma',l1N:'매입처',l2N:'BUYMA',l1C:'src',l2C:'by',l1P:'한국 매입처 상품 주소',l2P:'https://www.buyma.com/item/...',conv:null,pConv:v=>typeof bRateNow==='function'?`≈ ${fmt(v*bRateNow()/100)}원`:''}
+};
+const CF=()=>PCFG[PLAT==='buyma'?'buyma':'smart'];
+const curList=()=>PLAT==='buyma'?bitems:items;
+const setCurList=a=>{if(PLAT==='buyma')bitems=a;else items=a};
+let itEditId=null, itImg='';
+function saveItems(){try{localStorage.setItem(IKEY,JSON.stringify(items));localStorage.setItem(BIKEY,JSON.stringify(bitems));if(localStorage.getItem(IKEY)===null)throw 0}catch(e){if(STORE_OK)warn('브라우저 저장 공간이 부족합니다. 이미지가 너무 많거나 큽니다 — 💾 저장파일을 연결해 두세요.')}if(window.scheduleFileSave)scheduleFileSave();renderItems()}
+const hostOf=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return''}};
+function renderItems(){
+  const c=CF(), arr=curList(), q=$('#itQ').value.trim().toLowerCase();
+  const list=arr.filter(it=>!q||(it.name+' '+(it[c.l1]||'')+' '+(it[c.l2]||'')).toLowerCase().includes(q));
+  $('#itCount').textContent=`${arr.length}개`+(q?` 중 ${list.length}개`:'');
+  const head=`<div class="it-row it-head"><div></div><div>상품명</div><div class="n">판매가</div><div class="n">매입가</div><div>링크</div><div></div></div>`;
+  const lk=(it,f,n,cl)=>`<a href="${esc(it[f]||'#')}" target="_blank" rel="noopener" class="${cl} ${it[f]?'':'off'}" title="${esc(it[f]||n+' 링크 없음')}">${n}</a>`;
+  $('#itGrid').innerHTML=(list.length?head:'')+list.map(it=>{const pv=num(it[c.price]),cv=num(it[c.cost]);return `<div class="it-row" data-id="${it.id}">
+    <div class="it-thumb" data-iedit>${it.img?`<img src="${esc(it.img)}" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('X'))">`:'<span>없음</span>'}</div>
+    <div class="it-name" title="${esc(it.name)}" data-iedit>${esc(it.name)}</div>
+    <div class="n it-num"><b>${pv?fmt(pv)+c.pU:'-'}</b>${pv&&c.pConv?`<em>${c.pConv(pv)}</em>`:''}${pv&&PLAT!=='buyma'?`<em>정가 <s>${fmt(pv+LIST_UP)}원</s></em>`:''}</div>
+    <div class="n it-num"><b>${cv?fmt(cv)+c.cU:'-'}</b>${cv&&c.conv?`<em>${c.conv(cv)}</em>`:''}</div>
+    <div class="it-actions">${PLAT==='buyma'?lk(it,c.l2,c.l2N,c.l2C)+lk(it,c.l1,c.l1N,c.l1C):lk(it,c.l1,c.l1N,c.l1C)+lk(it,c.l2,c.l2N,c.l2C)}</div>
+    <div><button class="btn sm" data-iedit>수정</button></div></div>`}).join('');
+  $('#itEmpty').hidden=!!list.length; $('#itGrid').hidden=!list.length;
+  if(!list.length&&q)$('#itEmpty').textContent='검색 결과가 없어요.'; else $('#itEmpty').innerHTML=`아직 등록한 ${PLAT==='buyma'?'BUYMA ':''}상품이 없어요. <b>+ 상품 추가</b>로 이미지·상품명·가격·링크를 저장해 보세요.`;
+}
+const dlgI=$('#dlgItem'), itForm=$('#itForm');
+function setItImg(src){itImg=src||'';$('#itPrev').src=itImg;$('#itPrev').hidden=!itImg;$('#itDropMsg').hidden=!!itImg;$('#itImgUrl').value=itImg.startsWith('data:')?'':itImg}
+function openItem(it){
+  const c=CF();
+  itEditId=it?.id||null; itForm.reset(); $('#itTitle').textContent=(PLAT==='buyma'?'BUYMA ':'')+(it?'상품 수정':'상품 추가'); $('#itDel').hidden=!it;
+  $('#itPriceL').textContent=c.pL;$('#itPriceU').textContent=c.pU;$('#itCostL').textContent=c.cL;$('#itCostU').textContent=c.cU;
+  // 링크 입력칸: BUYMA는 BUYMA 링크를 먼저
+  const L1=PLAT==='buyma'?[c.l2,c.l2N,c.l2C,c.l2P]:[c.l1,c.l1N,c.l1C,c.l1P], L2=PLAT==='buyma'?[c.l1,c.l1N,c.l1C,c.l1P]:[c.l2,c.l2N,c.l2C,c.l2P];
+  $('#itL1').innerHTML=`<span class="dot ${L1[2]}"></span>${L1[1]} 링크`;itForm.rakuten.placeholder=L1[3];itForm.rakuten.dataset.f=L1[0];
+  $('#itL2').innerHTML=`<span class="dot ${L2[2]}"></span>${L2[1]} 링크`;itForm.smart.placeholder=L2[3];itForm.smart.dataset.f=L2[0];
+  itForm.name.value=it?.name||''; itForm.rakuten.value=it?.[L1[0]]||''; itForm.smart.value=it?.[L2[0]]||'';
+  itForm.price.value=num(it?.[c.price])?fmt(num(it[c.price])):''; itForm.jpy.value=num(it?.[c.cost])?fmt(num(it[c.cost])):''; setItImg(it?.img||'');
+  dlgI.showModal(); itForm.name.focus();
+}
+function shrink(file){ // 이미지 축소(최대 600px, JPEG) → 저장 공간 절약
+  return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=()=>{const im=new Image();im.onerror=rej;im.onload=()=>{
+    const m=600,sc=Math.min(1,m/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);
+    const g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.drawImage(im,0,0,cv.width,cv.height);res(cv.toDataURL('image/jpeg',0.82))};im.src=r.result};r.readAsDataURL(file)});
+}
+async function takeFile(f){if(!f||!f.type.startsWith('image/'))return toast('이미지 파일만 넣을 수 있어요');try{setItImg(await shrink(f))}catch(e){toast('이미지를 읽지 못했어요')}}
+$('#itAdd').onclick=()=>openItem();
+$('#itQ').addEventListener('input',renderItems);
+$('#itDrop').onclick=()=>$('#itFile').click();
+$('#itDrop').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#itFile').click()}};
+$('#itFile').onchange=e=>{takeFile(e.target.files[0]);e.target.value=''};
+['dragenter','dragover'].forEach(ev=>$('#itDrop').addEventListener(ev,e=>{e.preventDefault();$('#itDrop').classList.add('over')}));
+['dragleave','drop'].forEach(ev=>$('#itDrop').addEventListener(ev,e=>{e.preventDefault();$('#itDrop').classList.remove('over')}));
+$('#itDrop').addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)return takeFile(f);const u=e.dataTransfer.getData('text/uri-list')||e.dataTransfer.getData('text/plain');if(/^https?:\/\//.test(u))setItImg(u.trim())});
+dlgI.addEventListener('paste',e=>{const f=[...(e.clipboardData?.files||[])].find(x=>x.type.startsWith('image/'));if(f){e.preventDefault();takeFile(f)}});
+$('#itImgUrl').addEventListener('change',e=>{const u=e.target.value.trim();if(!u)return;if(!/^https?:\/\//.test(u))return toast('http로 시작하는 주소를 넣어 주세요');setItImg(u)});
+$('#itImgClear').onclick=()=>setItImg('');
+$$('[data-iclose]').forEach(b=>b.onclick=()=>dlgI.close());
+itForm.addEventListener('input',e=>{if(e.target.classList.contains('itmoney')){const raw=e.target.value.replace(/[^\d]/g,'');e.target.value=raw?Number(raw).toLocaleString('ko-KR'):''}});
+itForm.addEventListener('submit',e=>{
+  e.preventDefault(); const c=CF(), name=itForm.name.value.trim(); if(!name)return;
+  const fix=u=>{u=u.trim();return u&&!/^https?:\/\//i.test(u)?'https://'+u:u};
+  const d={name,img:itImg,[c.price]:num(itForm.price.value),[c.cost]:num(itForm.jpy.value),[itForm.rakuten.dataset.f]:fix(itForm.rakuten.value),[itForm.smart.dataset.f]:fix(itForm.smart.value)};
+  const arr=curList();
+  if(itEditId){const it=arr.find(x=>x.id===itEditId);Object.assign(it,d,{updatedAt:new Date().toISOString()})}
+  else arr.unshift({id:crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random(),...d,createdAt:new Date().toISOString()});
+  saveItems(); dlgI.close(); toast(STORE_OK||window.fileState==='ok'?'저장했어요':'저장되지 않았어요 — 크롬에서 파일을 직접 열어 주세요');
+});
+$('#itDel').onclick=()=>{if(confirm('이 상품을 판매 리스트에서 삭제할까요?')){setCurList(curList().filter(x=>x.id!==itEditId));saveItems();dlgI.close()}};
+$('#itGrid').addEventListener('click',e=>{if(e.target.closest('[data-iedit]')){const id=e.target.closest('.it-row').dataset.id;openItem(curList().find(x=>x.id===id))}});
+
+/* ---------- BUYMA 마진 계산기 (매입 원 → 판매 엔) ---------- */
+const BKEY2='gmdh-bcalc', BDEF={cost:30000,domShip:0,ship:15000,baseRate:920,fxFee:1.5,feeRate:7.7,sale:6000,biz:'general',dutyOn:true,dutyRate:8,clearFee:200,cardPct:0,pickOn:false,pickFee:3000,fix1:55,fix2:110,fix3:165,fix4:220,feeAlways:true,noVat:false};
+let bc=(()=>{try{return{...BDEF,...JSON.parse(localStorage.getItem(BKEY2))}}catch(e){return{...BDEF}}})();
+bc.biz='general'; // 일반과세자 고정 (간이과세자 선택 제거)
+if(!bc.shoeV){if(bc.dutyRate===10)bc.dutyRate=8;bc.shoeV=1} // 신발(비가죽) 기본 관세율 8%·통관수수료 200엔 // 사업자 유형: 간이과세자 기본
+const dutyAuto=sale=>Math.floor(num(sale)*0.6)>10000; // 과세가격 1만엔 초과(판매가 16,669엔~, 16,668엔까지는 ×0.6 후 1엔 미만 버림으로 1만엔)면 관세 포함 자동 체크
+bc.dutyOn=dutyAuto(bc.sale);
+const BDEC=['baseRate','fxFee','feeRate','vatRate','dutyRate','cardPct'];
+const DUTY={clothes:[10,false],other:[5,false],plastic:[3,false],free:[0,false],fur:[20,false],special:[10,true]}; // [간이세율%, 1만엔 이하도 과세]
+function bDuty(sale){ // 관세는 항상 판매자 부담 // 일본 세관 기준: 개인사용 과세가격 = 판매가 × 0.6 / 과세가격 1만엔 이하 → 관세·소비세 면세(관세정률법 14조18호)
+  // 면세 제외 신발(시행령 16조의3)은 갑피가 가죽(6403)·본바닥이 가죽·갑피에 모피·스키화뿐 → 비가죽 신발은 1만엔 이하 면세 적용
+  // 소비세 = (과세가격+관세)×10% / + 통관수수료 · 1만엔은 한 번에 보내는 화물 합계 기준
+  const base=Math.floor(sale*0.6); // 과세가격 (1엔 미만 버림)
+  if(base<=10000){const fee=bc.feeAlways?num(bc.clearFee):0;return{on:true,base,exempt:true,duty:0,ctax:0,fee,total:fee}} // 면세: 관세·소비세 0, 통관수수료는 설정에 따라
+  // 끝수처리: 과세표준 1,000엔 미만 버림 · 세액 100엔 미만 버림 / 소비세 = 국세 7.8% + 지방소비세(국세×22/78)
+  const f1000=x=>Math.floor(x/1000)*1000, f100=x=>Math.floor(x/100)*100;
+  const duty=f100(f1000(base)*bc.dutyRate/100);
+  const natl=f100(f1000(base+duty)*0.078), local=f100(natl*22/78), ctax=natl+local, fee=num(bc.clearFee);
+  return{on:true,base,exempt:false,duty,ctax,fee,total:duty+ctax+fee};
+}
+function bFixFee(p){p=num(p);const v=k=>num(bc[k]??BDEF[k]);return !p?0:p<10000?v('fix1'):p<20000?v('fix2'):p<100000?v('fix3'):v('fix4')} // BUYMA 정액 성약수수료 (상품 1건당·세포함) — 금액은 계산기에서 BUYMA 공지 기준으로 수정
+function bAutoFee(sale,qty){qty=Math.max(1,num(qty)||1);return sale?Math.round(sale*(bc.feeRate||0)/100)+bFixFee(sale/qty)*qty:0}
+function bRateNow(){return Math.round(bc.baseRate*(1-bc.fxFee/100)*100)/100} // 엔→원 받을 때 수수료만큼 덜 받음
+function bFill(){$$('[data-b]').forEach(el=>{const k=el.dataset.b;if(el.type==='checkbox')el.checked=!!bc[k];else if(el.tagName==='SELECT')el.value=bc[k];else el.value=BDEC.includes(k)?bc[k]:fmt(bc[k])})}
+function bCalc(){
+  const rate=bRateNow(), toK=y=>y*rate/100, toY=w=>rate?w/rate*100:0;
+  $('#bRate').textContent=rate.toLocaleString('ko-KR')+'원';
+  const dom=num(bc.domShip), buy=bc.cost+dom; // 매입 결제액 = 매입가 + 매입처 배송비
+  const cardBack=Math.round(buy*(bc.cardPct||0)/100);
+  $('#bDomInfo').textContent=dom?`매입 결제 합계 ${fmt(buy)}원`:'무료배송';
+  $('#bCostJpy').textContent=cardBack?`실부담(배송비 포함) ${fmt(buy-cardBack)}원 (−${fmt(cardBack)}원)`:`≈ ${fmt(toY(bc.cost))}엔`;$('#bShipJpy').textContent=`≈ ${fmt(toY(bc.ship))}엔`;$('#bSaleKrw').textContent=`≈ ${fmt(toK(bc.sale))}원`;
+  let err=''; if(!bc.sale)err='판매가(엔)를 입력하세요.'; else if(bc.feeRate>=100)err='BUYMA 수수료율이 100% 이상입니다.';
+  $('#bErr').textContent=err;$('#bErr').style.display=err?'block':'none';
+  if(err){$('#bBig').innerHTML='';$('#bStack').innerHTML='';$('#bLegend').innerHTML='';$('#bBreak').innerHTML='';return null}
+  const vat=bc.biz==='general'&&!bc.noVat?Math.round(buy*10/110):0; // 일반과세자: (매입가+매입처 배송비, 부가세 포함)의 10/110 환급 / 간이과세자·크림(개인 판매자) 매입: 환급 없음
+  $$('#bBiz button').forEach(x=>x.classList.toggle('on',x.dataset.biz===bc.biz));
+  const dt=bDuty(bc.sale), dutyK=Math.round(toK(dt.total));
+  $('#bDutyInfo').textContent=!dt.on?'관세 미포함 (구매자 부담)':dt.exempt?`과세가격 ${fmt(dt.base)}엔 (1만엔 이하) → 관세·소비세 면세${dt.fee?` · 통관수수료 ${fmt(dt.fee)}엔 (≈ ${fmt(dutyK)}원)`:''}`:`관세 ${fmt(dt.duty)} + 소비세 ${fmt(dt.ctax)} + 수수료 ${fmt(dt.fee)} = ${fmt(dt.total)}엔 (≈ ${fmt(dutyK)}원)`;
+  
+  const pick=bc.pickOn?num(bc.pickFee):0; $('[data-b=pickFee]').disabled=!bc.pickOn;
+  $('#bPickInfo').textContent=bc.pickOn?`≈ ${fmt(toY(pick))}엔 · 순이익에서 차감`:'미포함';
+  const saleK=toK(bc.sale), fixY=bFixFee(bc.sale), feeY=bc.sale*bc.feeRate/100+fixY, feeK=toK(feeY), recvK=saleK-feeK, profit=recvK-buy+cardBack-bc.ship-pick+vat-dutyK, margin=saleK?profit/saleK*100:0;
+  $('#bFixInfo').innerHTML=`+ 정액 수수료 <b>${fixY}엔</b> / 건`;
+  const r={rate,saleK,feeY,fixY,feeK,recvK,profit,margin,vat,dt,dutyK,cardBack,pick};
+  $('#bBig').innerHTML=`<div class="kpi hero${profit<0?' loss':''}">
+      <div><div class="l">예상 순이익</div><div class="v">${fmt(profit)}<small>원</small></div><div class="sub">≈ ${fmt(toY(profit))}엔</div></div>
+      <div class="hero-r"><div class="l">실제 마진율</div><div class="v">${margin.toFixed(1)}<small>%</small></div><div class="sub">판매가 원화 기준</div></div></div>`;
+  const parts=[[vat||cardBack?'매입가(실부담)':'매입가',Math.max(0,buy-vat-cardBack),'#3a3a3a'],['국제배송비',bc.ship,'#7a7a7a'],...(pick?[['픽업비용',pick,'#9a9a9a']]:[]),['BUYMA 수수료',feeK,'#b5b5b5'],...(dutyK?[['관세·소비세·수수료',dutyK,'#d9d9d9']]:[]),['순이익',Math.max(0,profit),'#111']];
+  const sum=parts.reduce((a,p)=>a+p[1],0)||1;
+  $('#bStack').innerHTML=parts.map(([l,x,col])=>`<div title="${l} ${fmt(x)}원" style="width:${x/sum*100}%;background:${col};${col==='#111'?'outline:1px solid var(--text);outline-offset:-1px':''}"></div>`).join('');
+  $('#bLegend').innerHTML=parts.map(([l,x,col])=>`<span><i style="background:${col};box-shadow:inset 0 0 0 1px var(--line)"></i>${l} ${(x/sum*100).toFixed(1)}%</span>`).join('');
+  const row=(l,y,w,cl='',ng='')=>`<tr class="${cl}"><td>${l}</td><td class="y">${y}</td><td class="n ${ng}">${w}</td></tr>`;
+  $('#bBreak').innerHTML=`<tr><th>항목 <span class="muted" style="font-weight:400">(수취환율 ${rate}원/100엔 = 기준 ${bc.baseRate} − ${bc.fxFee}%)</span></th><th>엔</th><th>원</th></tr>`
+    +row('판매가 (BUYMA)',fmt(bc.sale)+'엔',fmt(saleK)+'원','tot')
+    +row(`BUYMA 수수료 <span class="muted">(${bc.feeRate}% ${fmt(bc.sale*bc.feeRate/100)}엔 + 정액 ${fixY}엔)</span>`,fmt(feeY)+'엔','−'+fmt(feeK)+'원')
+    +row('정산 받는 금액',fmt(bc.sale-feeY)+'엔',fmt(recvK)+'원','tot')
+    +row('매입가 (한국)','≈ '+fmt(toY(bc.cost))+'엔','−'+fmt(bc.cost)+'원')
+    +(dom?row('매입처 배송비','≈ '+fmt(toY(dom))+'엔','−'+fmt(dom)+'원'):'')
+    +(cardBack?row(`카드 할인·적립 <span class="muted">(매입 결제액 × ${bc.cardPct}%)</span>`,'≈ '+fmt(toY(cardBack))+'엔','+'+fmt(cardBack)+'원'):'')
+    +row('국제 배송비','≈ '+fmt(toY(bc.ship))+'엔','−'+fmt(bc.ship)+'원')
+    +(pick?row('상품 픽업비용','≈ '+fmt(toY(pick))+'엔','−'+fmt(pick)+'원'):'')
+    +(dt.on&&dt.exempt&&dt.fee?row('일본 통관수수료 <span class="muted">(관세·소비세 면세)</span>',fmt(dt.fee)+'엔','−'+fmt(dutyK)+'원'):'')
+    +(dt.on&&!dt.exempt?row(`일본 관세·소비세·통관수수료 <span class="muted">(과세가격 ${fmt(dt.base)}엔 × 관세 ${bc.dutyRate}% + 소비세 10% + 수수료 ${fmt(dt.fee)}엔)</span>`,fmt(dt.total)+'엔','−'+fmt(dutyK)+'원'):'')
+    +(bc.biz==='general'&&bc.noVat?row('매입 부가세 환급 <span class="muted">(크림·개인 판매자 매입 → 환급 없음)</span>','-','0원'):'')
+    +(vat?row(`매입 부가세 환급 <span class="muted">(일반과세자 · 매입가+매입처 배송비 × 10/110)</span>`,'≈ '+fmt(toY(vat))+'엔','+'+fmt(vat)+'원'):'')
+    +row(`예상 순이익 <span class="muted">(마진율 ${margin.toFixed(1)}%)</span>`,'≈ '+fmt(toY(profit))+'엔',fmt(profit)+'원','tot',cls(profit));
+  return r;
+}
+$('#bcForm').addEventListener('input',e=>{const el=e.target,k=el.dataset.b;if(!k)return;
+  if(el.type==='checkbox')bc[k]=el.checked;
+  else if(el.tagName==='SELECT'){bc[k]=el.value;if(k==='dutyCat'){bc.dutyRate=DUTY[el.value][0];$('[data-b=dutyRate]').value=bc.dutyRate}}
+  else if(BDEC.includes(k)){el.value=el.value.replace(/[^\d.]/g,'');bc[k]=num(el.value)}else{const raw=el.value.replace(/[^\d]/g,'');el.value=raw?Number(raw).toLocaleString('ko-KR'):'';bc[k]=num(raw)}
+  if(k==='sale')bc.dutyOn=dutyAuto(bc.sale);
+  try{localStorage.setItem(BKEY2,JSON.stringify(bc))}catch(_){} if(window.scheduleFileSave)scheduleFileSave(); bCalc(); if(PLAT==='buyma')renderItems()});
+$('#bReset').onclick=()=>{bc={...BDEF,biz:bc.biz};bc.dutyOn=dutyAuto(bc.sale);try{localStorage.setItem(BKEY2,JSON.stringify(bc))}catch(e){}bFill();bCalc();toast('기본값으로 초기화했습니다')};
+$('#bCopy').onclick=async()=>{const r=bCalc();if(!r)return;
+  const txt=`[BUYMA 마진 계산]
+판매가: ${fmt(bc.sale)}엔 (≈ ${fmt(r.saleK)}원)
+- BUYMA 수수료(${bc.feeRate}% + 정액 ${r.fixY}엔): ${fmt(r.feeY)}엔 (≈ ${fmt(r.feeK)}원)
+- 매입가: ${fmt(bc.cost)}원${num(bc.domShip)?` + 매입처 배송비 ${fmt(bc.domShip)}원`:''}${r.cardBack?` (카드 할인·적립 ${bc.cardPct}% → +${fmt(r.cardBack)}원)`:''}
+- 국제배송비: ${fmt(bc.ship)}원${r.pick?`
+- 상품 픽업비용: ${fmt(r.pick)}원`:''}
+${r.dt.on&&r.dt.exempt&&r.dt.fee?`- 일본 통관수수료(관세 면세): ${fmt(r.dt.fee)}엔 (≈ ${fmt(r.dutyK)}원)\n`:''}${r.dt.on&&!r.dt.exempt?`- 일본 관세·소비세·통관수수료: ${fmt(r.dt.total)}엔 (≈ ${fmt(r.dutyK)}원)\n`:''}${r.vat?`+ 매입 부가세 환급(10/110): ${fmt(r.vat)}원\n`:''}사업자: ${bc.biz==='general'?(bc.noVat?'일반과세자 (크림·개인 판매자 매입 → 부가세 환급 없음)':'일반과세자'):'간이과세자 (부가세 환급 없음)'}\n수취환율: ${r.rate}원/100엔 (기준 ${bc.baseRate}원 − 수수료 ${bc.fxFee}%)
+예상 순이익: ${fmt(r.profit)}원 (마진율 ${r.margin.toFixed(1)}%)`;
+  try{await navigator.clipboard.writeText(txt)}catch(e){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}
+  toast('클립보드에 복사했습니다')};
+try{if(localStorage.getItem('gmdh-bdetail')==='1')$('#bDetail').open=true}catch(e){}
+$('#bDetail').addEventListener('toggle',e=>{try{localStorage.setItem('gmdh-bdetail',e.target.open?'1':'0')}catch(_){}});
+bFill();bCalc();
+$$('#bBiz button,#mBiz button').forEach(b=>b.onclick=()=>{bc.biz=b.dataset.biz;try{localStorage.setItem(BKEY2,JSON.stringify(bc))}catch(e){}if(window.scheduleFileSave)scheduleFileSave();bCalc();mCalc();render()});
+mCalc(); // 과세유형 반영
+
+/* ---------- BUYMA 장부 (스마트스토어 장부와 별도 데이터) ---------- */
+const BRKEY='gmdh-brows';
+let brows=(()=>{try{return JSON.parse(localStorage.getItem(BRKEY))||[]}catch(e){return[]}})();
+let bEditId=null;
+const BMONEY=['saleJpy','feeJpy','settleKrw','cost','ship','etc','duty','pick','cardBack','vatBack'], BAUTO=['duty','pick','cardBack','vatBack'];
+const bSaleK=r=>num(r.saleJpy)*num(r.rate)/100;
+const bSettle=r=>num(r.settleKrw)||Math.round((num(r.saleJpy)-num(r.feeJpy))*num(r.rate)/100);
+const bFeeK=r=>bSaleK(r)-bSettle(r);
+// 영세율 과세표준(부가세 신고용) = 판매가(엔) × 선적일 기준환율 (수수료 차감 전 매매기준율) · 없으면 수취 환율
+const bTaxK=r=>Math.round(num(r.saleJpy)*(num(r.taxRate)||num(r.rate))/100);
+const bOther=r=>num(r.duty)+num(r.pick)+num(r.etc);          // 관세·통관비 + 픽업비 + 기타
+const bCredit=r=>num(r.cardBack)+num(r.vatBack);               // 카드 할인·적립 + 매입 부가세 환급
+const bExp=r=>num(r.cost)+num(r.ship)+bOther(r)-bCredit(r);    // 순 매입·비용
+const bProfit=r=>bSettle(r)-bExp(r);                           // 마진 계산기와 같은 항목으로 계산
+function bAutoVal(k,sale,cost,rate,noVat){ // 마진 계산기 설정 기준 자동값
+  if(k==='duty'){const dt=bDuty(sale);return dt.on?Math.round(dt.total*rate/100):0}
+  if(k==='pick')return bc.pickOn?num(bc.pickFee):0;
+  if(k==='cardBack')return Math.round(cost*(bc.cardPct||0)/100);
+  if(k==='vatBack')return bc.biz==='general'&&!noVat?Math.round(cost*10/110):0; // 크림·개인 판매자 매입은 환급 없음
+  return 0}
+function bSave(){try{localStorage.setItem(BRKEY,JSON.stringify(brows))}catch(e){}if(window.scheduleFileSave)scheduleFileSave();bRender()}
+function bFiltered(){
+  const q=$('#bq').value.trim().toLowerCase(),fr=$('#bFrom').value,to=$('#bTo').value,ev=$('#bEvF').checked;
+  return brows.filter(r=>{if(fr&&r.orderDate<fr)return false;if(to&&r.orderDate>to)return false;if(ev&&r.ev1&&r.ev2&&r.ev3)return false;
+    if(q&&![r.orderNo,r.product,r.customer,r.memo,r.vendor,r.tracking].join(' ').toLowerCase().includes(q))return false;return true})
+    .sort((a,b)=>String(b.orderDate).localeCompare(String(a.orderDate))||String(b.createdAt).localeCompare(String(a.createdAt)));
+}
+function bTotals(list){const t={n:list.length,sale:0,saleK:0,fee:0,settle:0,cost:0,ship:0,etc:0,credit:0,exp:0,profit:0,miss:0};
+  list.forEach(r=>{t.sale+=num(r.saleJpy);t.saleK+=bSaleK(r);t.fee+=bFeeK(r);t.settle+=bSettle(r);t.cost+=num(r.cost);t.ship+=num(r.ship);t.etc+=bOther(r);t.credit+=bCredit(r);t.exp+=bExp(r);t.profit+=bProfit(r);if(!(r.ev1&&r.ev2&&r.ev3))t.miss++});return t}
+function bRender(){
+  const list=bFiltered(),t=bTotals(list);
+  $('#bKpis').innerHTML=[['건수',fmt(t.n)+'건'+(t.miss?` <span style="font-size:15px;color:var(--warn);font-weight:700">증빙미완 ${t.miss}</span>`:'')],
+    ['판매 합계 (엔)',fmt(t.sale)+'엔'],['정산 합계 (원)',fmt(t.settle)],['BUYMA 수수료 (원)',fmt(t.fee)],['매입·비용 (원)',fmt(t.exp)],['순이익 (원)',`<span class="${t.profit<0?'neg':''}">${fmt(t.profit)}</span>`,1]]
+    .map(([l,v,h])=>`<div class="kpi${h?' hl':''}"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  $('#bTbl tbody').innerHTML=list.map(r=>`<tr data-id="${r.id}">
+    <td>${esc(r.orderDate)}</td><td>${esc(r.orderNo)}</td><td class="trunc" title="${esc(r.product)}">${esc(r.product)}${num(r.qty)>1?` <span class="muted">×${num(r.qty)}</span>`:''}</td><td>${esc(r.customer)}</td>
+    <td class="n">${fmt(num(r.saleJpy))}<span class="yen">≈ ${fmt(bSaleK(r))}원</span></td><td class="n">${fmt(num(r.feeJpy))}</td><td class="n">${fmt(bSettle(r))}</td>
+    <td class="n">${fmt(num(r.cost))}</td><td class="n">${fmt(num(r.ship))}</td><td class="n">${fmt(bOther(r))}</td><td class="n">${bCredit(r)?'+'+fmt(bCredit(r)):'0'}</td><td class="n ${bProfit(r)<0?'neg':''}"><b>${fmt(bProfit(r))}</b></td>
+    <td><span class="ev">${['ev1','ev2','ev3'].map((k,i)=>`<button data-bev="${k}" class="${r[k]?'ok':''}" title="${['BUYMA 정산내역','매입 영수증','배송·수출 증빙'][i]}">${['정','매','배'][i]}</button>`).join('')}</span></td>
+    <td><button class="btn sm" data-bedit>수정</button></td></tr>`).join('');
+  $('#bTbl tfoot').innerHTML=list.length?`<tr><td colspan="4">합계 (${t.n}건)</td><td class="n">${fmt(t.sale)}</td><td class="n">-</td><td class="n">${fmt(t.settle)}</td><td class="n">${fmt(t.cost)}</td><td class="n">${fmt(t.ship)}</td><td class="n">${fmt(t.etc)}</td><td class="n">${t.credit?'+'+fmt(t.credit):'0'}</td><td class="n ${t.profit<0?'neg':''}">${fmt(t.profit)}</td><td colspan="2"></td></tr>`:'';
+  $('#bEmpty').hidden=!!list.length;
+  // 월별 합계 (올해)
+  const y=String(new Date().getFullYear());$('#bMonthYear').textContent=y+'년';
+  const ms=[...Array(12)].map((_,i)=>bTotals(brows.filter(r=>(r.orderDate||'').startsWith(y)&&+r.orderDate.slice(5,7)===i+1)));
+  const T=bTotals(brows.filter(r=>(r.orderDate||'').startsWith(y)));
+  $('#bMonth').innerHTML=`<thead><tr><th>월</th><th class="n">건수</th><th class="n">판매(엔)</th><th class="n">정산(원)</th><th class="n">수수료(원)</th><th class="n">매입·비용</th><th class="n">순이익</th></tr></thead><tbody>`+
+    ms.map((m,i)=>`<tr><td>${i+1}월</td><td class="n">${m.n}</td><td class="n">${fmt(m.sale)}</td><td class="n">${fmt(m.settle)}</td><td class="n">${fmt(m.fee)}</td><td class="n">${fmt(m.exp)}</td><td class="n ${m.profit<0?'neg':''}"><b>${fmt(m.profit)}</b></td></tr>`).join('')+
+    `</tbody><tfoot><tr><td>합계</td><td class="n">${T.n}</td><td class="n">${fmt(T.sale)}</td><td class="n">${fmt(T.settle)}</td><td class="n">${fmt(T.fee)}</td><td class="n">${fmt(T.exp)}</td><td class="n">${fmt(T.profit)}</td></tr></tfoot>`;
+  if(window.aReady)aRender();
+}
+const dlgB=$('#dlgB'), bFrm=$('#bFrm');
+function bConv(){
+  const rate=num(bFrm.rate.value),sale=num(bFrm.saleJpy.value);
+  if(bFrm.feeJpy.dataset.manual!=='1')bFrm.feeJpy.value=sale?fmt(bAutoFee(sale,bFrm.qty.value)):'';
+  const fee=num(bFrm.feeJpy.value),el=bFrm.settleKrw,tag=$('#bTag');
+  if(el.dataset.manual!=='1')el.value=sale&&rate?fmt(Math.round((sale-fee)*rate/100)):'';
+  tag.className='auto-tag '+(el.dataset.manual==='1'?'man':'auto');tag.textContent=el.dataset.manual==='1'?'직접 입력':'자동 환산';
+  const cost=num(bFrm.cost.value);
+  BAUTO.forEach(k=>{const f=bFrm[k],tg=$('#bTag_'+k);if(f.dataset.manual!=='1'){const v=bAutoVal(k,sale,cost,rate,bFrm.noVat.checked);f.value=v?fmt(v):''}
+    tg.className='auto-tag '+(f.dataset.manual==='1'?'man':'auto');tg.textContent=f.dataset.manual==='1'?'직접 입력':'자동'});
+  const r={saleJpy:sale,feeJpy:fee,rate,settleKrw:num(el.value),cost,ship:num(bFrm.ship.value),etc:num(bFrm.etc.value)};
+  BAUTO.forEach(k=>r[k]=num(bFrm[k].value));
+  const pf=bProfit(r),sk=bSaleK(r);
+  $('#bCalcBox').innerHTML=`<div><div class="l">정산액 (원)</div><div class="v">${fmt(bSettle(r))}원</div></div>
+    <div><div class="l">순이익</div><div class="v ${pf<0?'neg':''}">${fmt(pf)}원</div></div>
+    <div><div class="l">마진율 (순이익 ÷ 판매가 원화)</div><div class="v">${sk?(pf/sk*100).toFixed(1):'0.0'}%</div></div>
+    <div class="formula">${fmt(bSettle(r))} − (${fmt(r.cost)} + ${fmt(r.ship)} + ${fmt(bOther(r))}) + ${fmt(bCredit(r))} = ${fmt(pf)}${pf<0?' · 역마진입니다.':''}</div>`;
+}
+function bOpen(r){
+  bEditId=r?.id||null;bFrm.reset();$('#bDlgTitle').textContent=r?'BUYMA 주문 수정':'BUYMA 주문 추가';$('#bDel').hidden=!r;$('#bKeepWrap').hidden=!!r;
+  const d=r||{orderDate:today(),qty:1,rate:bRateNow(),taxRate:bc.baseRate};
+  for(const el of bFrm.elements){if(!el.name)continue;
+    if(el.type==='checkbox')el.checked=!!d[el.name];
+    else el.value=BMONEY.includes(el.name)?(num(d[el.name])?fmt(num(d[el.name])):''):el.name==='rate'?(num(d.rate)||bRateNow()):el.name==='taxRate'?(num(d.taxRate)||''):(d[el.name]??'')}
+  bFrm.feeJpy.dataset.manual=r&&num(r.feeJpy)&&num(r.feeJpy)!==bAutoFee(num(r.saleJpy),r.qty)?'1':'';
+  bFrm.settleKrw.dataset.manual=r&&num(r.settleKrw)?'1':'';
+  // 예전 기록(칸 없음)은 0으로 유지, 저장된 값이 자동값과 다르면 직접 입력으로 취급
+  BAUTO.forEach(k=>{bFrm[k].dataset.manual=r?(r[k]===undefined||num(r[k])!==bAutoVal(k,num(r.saleJpy),num(r.cost),num(r.rate),!!r.noVat))?'1':'':''});
+  bConv();dlgB.showModal();(r?bFrm.saleJpy:bFrm.orderNo).focus();
+}
+bFrm.addEventListener('input',e=>{const el=e.target;
+  if(el.classList.contains('bmoney')){const raw=el.value.replace(/[^\d]/g,'');el.value=raw?Number(raw).toLocaleString('ko-KR'):''}
+  if(el.name==='rate'||el.name==='taxRate')el.value=el.value.replace(/[^\d.]/g,'');
+  if(el.name==='feeJpy'||el.name==='settleKrw'||BAUTO.includes(el.name))el.dataset.manual=el.value.trim()?'1':'';
+  if(el.name==='vendor'&&/크림|kream/i.test(el.value))bFrm.noVat.checked=true; // 매입처에 크림 입력 시 자동 체크
+  bConv()});
+bFrm.addEventListener('submit',e=>{e.preventDefault();
+  const d={};for(const el of bFrm.elements){if(!el.name)continue;d[el.name]=el.type==='checkbox'?el.checked:BMONEY.includes(el.name)||el.name==='qty'||el.name==='rate'||el.name==='taxRate'?num(el.value):el.value.trim()}
+  if(bFrm.settleKrw.dataset.manual!=='1')d.settleKrw=0; // 자동값은 저장하지 않고 계산
+  if(brows.find(r=>r.orderNo===d.orderNo&&r.id!==bEditId)&&!confirm(`주문번호 ${d.orderNo}가 이미 있습니다. 그래도 저장할까요?`))return;
+  if(bEditId){const i=brows.findIndex(r=>r.id===bEditId);brows[i]={...brows[i],...d}}
+  else brows.push({id:crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random(),createdAt:new Date().toISOString(),...d});
+  bSave();toast('저장했어요');
+  if(!bEditId&&$('#bKeep').checked){const k={orderDate:d.orderDate,rate:d.rate,taxRate:d.taxRate};bOpen();bFrm.orderDate.value=k.orderDate;bFrm.rate.value=k.rate;bFrm.taxRate.value=k.taxRate||'';bConv();bFrm.orderNo.focus()}else dlgB.close()});
+$('#bDel').onclick=()=>{if(confirm('이 주문을 삭제할까요? 되돌릴 수 없습니다.')){brows=brows.filter(r=>r.id!==bEditId);bSave();dlgB.close()}};
+$$('[data-bclose]').forEach(b=>b.onclick=()=>dlgB.close());
+$('#bAdd').onclick=()=>bOpen();
+$('#bTbl tbody').addEventListener('click',e=>{const tr=e.target.closest('tr');if(!tr)return;const r=brows.find(x=>x.id===tr.dataset.id);
+  const ev=e.target.closest('[data-bev]');if(ev){r[ev.dataset.bev]=!r[ev.dataset.bev];bSave();return}
+  if(e.target.closest('[data-bedit]'))bOpen(r)});
+$('#bTbl tbody').addEventListener('dblclick',e=>{const tr=e.target.closest('tr');if(tr&&!e.target.closest('button'))bOpen(brows.find(x=>x.id===tr.dataset.id))});
+['#bq','#bFrom','#bTo','#bEvF'].forEach(id=>$(id).addEventListener('input',bRender));
+$('#bQuick').onchange=e=>{const d=new Date(),y=d.getFullYear(),m=d.getMonth(),p=n=>String(n).padStart(2,'0'),last=(y,m)=>new Date(y,m+1,0).getDate(),set=(a,b)=>{$('#bFrom').value=a;$('#bTo').value=b};
+  ({thisMonth:()=>set(`${y}-${p(m+1)}-01`,`${y}-${p(m+1)}-${last(y,m)}`),lastMonth:()=>{const ly=m?y:y-1,lm=m?m-1:11;set(`${ly}-${p(lm+1)}-01`,`${ly}-${p(lm+1)}-${last(ly,lm)}`)},
+    h1:()=>set(`${y}-01-01`,`${y}-06-30`),h2:()=>set(`${y}-07-01`,`${y}-12-31`),year:()=>set(`${y}-01-01`,`${y}-12-31`),lastYear:()=>set(`${y-1}-01-01`,`${y-1}-12-31`)})[e.target.value]?.();e.target.value='';bRender()};
+$('#bResetF').onclick=()=>{['#bq','#bFrom','#bTo'].forEach(i=>$(i).value='');$('#bEvF').checked=false;bRender()};
+$('#bExport').onclick=()=>{
+  const H=[['orderDate','주문일자'],['orderNo','주문번호'],['product','상품명'],['qty','수량'],['customer','고객'],['tracking','송장번호'],['saleJpy','판매가(엔)'],['feeJpy','BUYMA수수료(엔)'],['rate','수취환율(100엔당)'],['taxRate','신고용기준환율(선적일)'],['taxK','영세율과세표준(원)'],['saleK','판매가(원환산)'],['settle','정산액(원)'],['cost','매입가(원)'],['ship','국제배송비(원)'],['etc','기타비용(원)'],['duty','관세·통관비(원)'],['pick','픽업비(원)'],['cardBack','카드할인·적립(원)'],['vatBack','부가세환급(원)'],['vendor','매입처'],['profit','순이익(원)'],['ev1','증빙_정산내역'],['ev2','증빙_매입영수증'],['ev3','증빙_배송수출'],['memo','비고']];
+  const rowsX=[...brows].sort((a,b)=>String(a.orderDate).localeCompare(String(b.orderDate))).map(r=>{const o={};H.forEach(([k,h])=>o[h]=k==='taxK'?bTaxK(r):k==='saleK'?Math.round(bSaleK(r)):k==='settle'?bSettle(r):k==='profit'?bProfit(r):k.startsWith('ev')?(r[k]?'O':''):(r[k]??''));return o});
+  if(typeof XLSX==='undefined'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(rowsX,null,1)],{type:'application/json'}));a.download=`BUYMA장부_${today()}.json`;a.click();return toast('엑셀 라이브러리를 못 불러와 JSON으로 저장했어요')}
+  const wb=XLSX.utils.book_new(),ws=XLSX.utils.json_to_sheet(rowsX,{header:H.map(h=>h[1])});ws['!cols']=H.map(([k])=>({wch:['product','memo'].includes(k)?30:14}));XLSX.utils.book_append_sheet(wb,ws,'BUYMA장부');
+  const yrs=[...new Set(brows.map(r=>(r.orderDate||'').slice(0,4)).filter(Boolean))].sort(),ms=[];
+  yrs.forEach(y=>{for(let m=1;m<=12;m++){const t=bTotals(brows.filter(r=>r.orderDate.startsWith(y)&&+r.orderDate.slice(5,7)===m));ms.push({'연도':y,'월':m,'건수':t.n,'판매(엔)':t.sale,'판매(원환산)':Math.round(t.saleK),'정산(원)':t.settle,'수수료(원)':Math.round(t.fee),'매입(원)':t.cost,'배송(원)':t.ship,'관세·픽업·기타(원)':t.etc,'적립·환급(원)':t.credit,'순이익(원)':t.profit})}});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(ms),'월별합계');XLSX.writeFile(wb,`BUYMA장부_${today()}.xlsx`)};
+bRender();
+
+/* ---------- 전체 판매 장부 (스마트스토어 + BUYMA 합산) ---------- */
+function aAll(){
+  const s=rows.map(r=>({src:'smart',r,id:r.id,date:r.orderDate||'',orderNo:r.orderNo,product:r.product,qty:r.qty,customer:r.customer,memo:r.memo,createdAt:r.createdAt,
+    sale:num(r.A),tax:comm(r),zero:0,profit:net(r),evT:['정산내역서','해외영수증','배대지내역'],evL:['정','영','배']}));
+  const b=brows.map(r=>{const sale=bTaxK(r),pf=bProfit(r);return{src:'buyma',r,id:r.id,date:r.orderDate||'',orderNo:r.orderNo,product:r.product,qty:r.qty,customer:r.customer,memo:r.memo,createdAt:r.createdAt,
+    sale,tax:0,zero:sale,profit:pf,jpy:num(r.saleJpy),evT:['BUYMA 정산내역','매입 영수증','배송·수출 증빙'],evL:['정','매','배']}});
+  return [...s,...b].map(x=>({...x,cost:x.sale-x.profit,evOk:!!(x.r.ev1&&x.r.ev2&&x.r.ev3)}));
+}
+function aTotals(list){const t={n:list.length,ns:0,nb:0,sale:0,tax:0,zero:0,cost:0,profit:0,miss:0};
+  list.forEach(x=>{t[x.src==='smart'?'ns':'nb']++;t.sale+=x.sale;t.tax+=x.tax;t.zero+=x.zero;t.cost+=x.cost;t.profit+=x.profit;if(!x.evOk)t.miss++});return t}
+function aFiltered(){
+  const q=$('#aq').value.trim().toLowerCase(),fr=$('#aFrom').value,to=$('#aTo').value,ev=$('#aEvF').checked;
+  return aAll().filter(x=>{if(fr&&x.date<fr)return false;if(to&&x.date>to)return false;if(ev&&x.evOk)return false;
+    if(q&&![x.orderNo,x.product,x.customer,x.memo,x.r.store,x.r.vendor,x.r.tracking].join(' ').toLowerCase().includes(q))return false;return true})
+    .sort((a,b)=>b.date.localeCompare(a.date)||String(b.createdAt).localeCompare(String(a.createdAt)));
+}
+function aRender(){
+  const list=aFiltered(),t=aTotals(list),ng=v=>v<0?'neg':'';
+  // 간이과세자 기준 점검 (올해 공급대가 = 스마트스토어 수수료 + BUYMA 영세율 매출)
+  {const y=String(new Date().getFullYear()),Y=aTotals(aAll().filter(x=>x.date.startsWith(y))),sup=Y.tax+Y.zero,w=$('#aTaxWarn');let m='';
+   if(!isGen()&&sup>=104000000)m=`⚠️ 올해 공급대가 ${fmt(sup)}원 — 간이과세 기준(1억 400만원) 이상이라 내년 7월부터 일반과세자로 전환돼요.`;
+   else if(!isGen()&&sup>=48000000)m=`⚠️ 올해 공급대가 ${fmt(sup)}원 — 4,800만원 이상이라 간이과세자 부가세 납부 면제가 안 돼요. 스마트스토어 수수료에 업종별 부가가치율만큼 부가세가 생겨요(장부 순이익에는 미반영).`;
+   w.textContent=m;w.classList.toggle('show',!!m)}
+  $('#aKpis').innerHTML=[
+    ['건수',fmt(t.n)+'건'+(t.miss?` <span style="font-size:15px;color:var(--warn);font-weight:700">증빙미완 ${t.miss}</span>`:'')+`<div class="muted" style="font-size:13px;font-weight:600;margin-top:4px">스마트 ${t.ns} · BUYMA ${t.nb}</div>`],
+    ['판매금액 합계',fmt(t.sale)],['과세매출 (스마트스토어)',fmt(t.tax)],['영세율매출 (BUYMA)',fmt(t.zero)],['매입·비용 합계',fmt(t.cost)],
+    ['순이익',`<span class="${ng(t.profit)}">${fmt(t.profit)}</span>`,1]
+  ].map(([l,v,h])=>`<div class="kpi${h?' hl':''}"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  $('#aTbl tbody').innerHTML=list.map(x=>`<tr data-src="${x.src}" data-id="${x.id}">
+    <td>${esc(x.date)}</td><td><span class="src-tag ${x.src}">${x.src==='smart'?'스마트스토어':'BUYMA'}</span></td><td>${esc(x.orderNo)}</td>
+    <td class="trunc" title="${esc(x.product)}">${esc(x.product)}${num(x.qty)>1?` <span class="muted">×${num(x.qty)}</span>`:''}</td><td>${esc(x.customer)}</td>
+    <td class="n">${fmt(x.sale)}${x.jpy?`<span class="yen">${fmt(x.jpy)}엔</span>`:''}</td>
+    <td class="n ${x.tax?ng(x.tax):'zero'}">${x.src==='smart'?`<b>${fmt(x.tax)}</b>`:'-'}</td><td class="n ${x.zero?'':'zero'}">${x.src==='buyma'?`<b>${fmt(x.zero)}</b>`:'-'}</td>
+    <td class="n">${fmt(x.cost)}</td><td class="n ${ng(x.profit)}">${fmt(x.profit)}</td>
+    <td><span class="ev">${['ev1','ev2','ev3'].map((k,i)=>`<button data-aev="${k}" class="${x.r[k]?'ok':''}" title="${x.evT[i]}">${x.evL[i]}</button>`).join('')}</span></td>
+    <td><button class="btn sm" data-aedit>수정</button></td></tr>`).join('');
+  $('#aTbl tfoot').innerHTML=list.length?`<tr><td colspan="5">합계 (${t.n}건)</td><td class="n">${fmt(t.sale)}</td><td class="n">${fmt(t.tax)}</td><td class="n">${fmt(t.zero)}</td><td class="n">${fmt(t.cost)}</td><td class="n ${ng(t.profit)}">${fmt(t.profit)}</td><td colspan="2"></td></tr>`:'';
+  $('#aEmpty').hidden=!!list.length;
+  // 기간별 합계
+  const all=aAll(),years=[...new Set(all.map(x=>x.date.slice(0,4)).filter(Boolean))],cy=String(new Date().getFullYear());
+  if(!years.includes(cy))years.push(cy);years.sort().reverse();
+  const ys=$('#aYear'),yv=ys.value||cy;ys.innerHTML=years.map(y=>`<option${y===yv?' selected':''}>${y}</option>`).join('');
+  const src=all.filter(x=>x.date.startsWith(ys.value)),mo=x=>+x.date.slice(5,7);
+  const head=`<thead><tr><th>기간</th><th class="n">건수 <span class="muted" style="font-weight:400">(스마트/BUYMA)</span></th><th class="n">판매금액</th><th class="n">과세매출</th><th class="n">영세율매출</th><th class="n">매입·비용</th><th class="n">순이익</th></tr></thead>`;
+  const tr=(l,L,tag='td')=>{const T=aTotals(L);return `<tr><${tag}>${l}</${tag}><${tag} class="n">${T.n} <span class="muted">(${T.ns}/${T.nb})</span></${tag}><${tag} class="n">${fmt(T.sale)}</${tag}><${tag} class="n"><b>${fmt(T.tax)}</b></${tag}><${tag} class="n"><b>${fmt(T.zero)}</b></${tag}><${tag} class="n">${fmt(T.cost)}</${tag}><${tag} class="n ${ng(T.profit)}">${fmt(T.profit)}</${tag}></tr>`};
+  $('#aHh').innerHTML=`연간 · 반기 <span class="muted" style="font-weight:400;font-size:12px">${vatNote()} · 스마트스토어는 과세, BUYMA는 영세율</span>`;
+  $('#aH').innerHTML=head+`<tbody>${tr(halfLabel(0),src.filter(x=>mo(x)<=6))}${tr(halfLabel(1),src.filter(x=>mo(x)>6))}</tbody><tfoot>${tr(ys.value+'년 전체',src)}</tfoot>`;
+  $('#aM').innerHTML=head+`<tbody>${[...Array(12)].map((_,i)=>tr(`${i+1}월`,src.filter(x=>mo(x)===i+1))).join('')}</tbody><tfoot>${tr('합계',src)}</tfoot>`;
+  if(window.calReady)calRender();
+}
+$('#aTbl tbody').addEventListener('click',e=>{const t=e.target.closest('tr');if(!t)return;const isS=t.dataset.src==='smart',r=(isS?rows:brows).find(x=>x.id===t.dataset.id);if(!r)return;
+  const ev=e.target.closest('[data-aev]');if(ev){r[ev.dataset.aev]=!r[ev.dataset.aev];isS?save():bSave();return}
+  if(e.target.closest('[data-aedit]'))isS?openForm(r):bOpen(r)});
+$('#aTbl tbody').addEventListener('dblclick',e=>{const t=e.target.closest('tr');if(!t||e.target.closest('button'))return;const isS=t.dataset.src==='smart',r=(isS?rows:brows).find(x=>x.id===t.dataset.id);if(r)isS?openForm(r):bOpen(r)});
+['#aq','#aFrom','#aTo','#aEvF','#aYear'].forEach(id=>$(id).addEventListener('input',aRender));
+$('#aQuick').onchange=e=>{const d=new Date(),y=d.getFullYear(),m=d.getMonth(),p=n=>String(n).padStart(2,'0'),last=(y,m)=>new Date(y,m+1,0).getDate(),set=(a,b)=>{$('#aFrom').value=a;$('#aTo').value=b};
+  ({thisMonth:()=>set(`${y}-${p(m+1)}-01`,`${y}-${p(m+1)}-${last(y,m)}`),lastMonth:()=>{const ly=m?y:y-1,lm=m?m-1:11;set(`${ly}-${p(lm+1)}-01`,`${ly}-${p(lm+1)}-${last(ly,lm)}`)},
+    h1:()=>set(`${y}-01-01`,`${y}-06-30`),h2:()=>set(`${y}-07-01`,`${y}-12-31`),year:()=>set(`${y}-01-01`,`${y}-12-31`),lastYear:()=>set(`${y-1}-01-01`,`${y-1}-12-31`)})[e.target.value]?.();e.target.value='';aRender()};
+$('#aResetF').onclick=()=>{['#aq','#aFrom','#aTo'].forEach(i=>$(i).value='');$('#aEvF').checked=false;aRender()};
+function setSeg(v){document.body.dataset.seg=v;$$('#aSeg input').forEach(i=>i.checked=i.value===v);try{localStorage.setItem('gmdh-seg',v)}catch(e){}}
+$('#aSeg').addEventListener('change',e=>setSeg(e.target.value));
+setSeg((()=>{try{return localStorage.getItem('gmdh-seg')}catch(e){}})()||'all');
+$('#aExport').onclick=()=>{
+  const list=aAll().sort((a,b)=>a.date.localeCompare(b.date));
+  const X=list.map(x=>({'주문일자':x.date,'구분':x.src==='smart'?'스마트스토어':'BUYMA','과세구분':x.src==='smart'?'과세':'영세율','주문번호':x.orderNo??'','상품명':x.product??'','수량':num(x.qty)||'','고객':x.customer??'',
+    '판매금액(원)':x.sale,'판매가(엔)':x.jpy||'','과세매출(원)':x.tax,'영세율매출(원)':x.zero,'매입·비용(원)':x.cost,'순이익(원)':x.profit,'증빙완료':x.evOk?'O':'','비고':x.memo??''}));
+  const yrs=[...new Set(list.map(x=>x.date.slice(0,4)).filter(Boolean))].sort(),M=[];
+  yrs.forEach(y=>{for(let m=1;m<=12;m++){const T=aTotals(list.filter(x=>x.date.startsWith(y)&&+x.date.slice(5,7)===m));M.push({'연도':y,'월':m,'건수':T.n,'스마트스토어 건수':T.ns,'BUYMA 건수':T.nb,'판매금액(원)':T.sale,'과세매출(원)':T.tax,'영세율매출(원)':T.zero,'매입·비용(원)':T.cost,'순이익(원)':T.profit})}
+    const T=aTotals(list.filter(x=>x.date.startsWith(y)));M.push({'연도':y,'월':'연간','건수':T.n,'스마트스토어 건수':T.ns,'BUYMA 건수':T.nb,'판매금액(원)':T.sale,'과세매출(원)':T.tax,'영세율매출(원)':T.zero,'매입·비용(원)':T.cost,'순이익(원)':T.profit})});
+  const fn=`전체판매장부_${safeName()}_${today()}`;
+  if(typeof XLSX==='undefined'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({rows:X,monthly:M},null,1)],{type:'application/json'}));a.download=fn+'.json';a.click();return toast('엑셀 라이브러리를 못 불러와 JSON으로 저장했어요')}
+  const wb=XLSX.utils.book_new(),ws=XLSX.utils.json_to_sheet(X);ws['!cols']=Object.keys(X[0]||{a:1}).map(k=>({wch:['상품명','비고'].includes(k)?30:13}));
+  XLSX.utils.book_append_sheet(wb,ws,'전체판매장부');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(M),'월별합계');
+  if(cevents.length){const E=[...cevents].sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(e=>e.type==='ad'
+      ?{'날짜':e.date,'구분':'광고비 충전','내용':e.channel||'','결제액(원)':num(e.paid),'부가세공제(원)':cVat(e),'무상비즈머니(원)':num(e.free)||'','손익(원)':-(num(e.paid)-cVat(e)),'결제수단':e.card||'','메모':e.memo||''}
+      :{'날짜':e.date,'구분':'반품','내용':[e.orderNo,e.product].filter(Boolean).join(' · '),'환불액(원)':num(e.refund),'받은반품배송비(원)':num(e.retFee)||'','처리비용(원)':num(e.cost)||'','회수재고(원)':num(e.stock)||'','재고처리':e.stockStatus||'','손익(원)':cRetPL(e),'메모':e.memo||''});
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(E),'반품·광고비')}
+  XLSX.writeFile(wb,fn+'.xlsx')};
+window.aReady=true; aRender();
+
+/* ---------- 달력 (판매·반품·광고비 충전) ---------- */
+const CKEY='gmdh-cal';
+let cevents=(()=>{try{return JSON.parse(localStorage.getItem(CKEY))||[]}catch(e){return[]}})();
+function cSave(){try{localStorage.setItem(CKEY,JSON.stringify(cevents))}catch(e){warn('저장에 실패했습니다. 💾 저장파일을 연결하거나 엑셀로 내보내 백업하세요.')}if(window.scheduleFileSave)scheduleFileSave();calRender()}
+const cVat=e=>Math.round(num(e.paid)*10/110);           // 광고비 부가세 공제 (일반과세자)
+const cRetPL=e=>-num(e.refund)-num(e.cost)+num(e.stock); // 반품 손익
+let calY=new Date().getFullYear(),calM=new Date().getMonth();
+const ymd=(y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+const sgn=v=>(v>0?'+':'')+fmt(v);
+function calDay(ds){return{sale:aAll().filter(x=>x.date===ds),ev:cevents.filter(e=>e.date===ds)}}
+function calRender(){
+  const el=$('#calGrid');if(!el)return;
+  $('#calTitle').textContent=`${calY}년 ${calM+1}월`;
+  const start=new Date(calY,calM,1).getDay(),days=new Date(calY,calM+1,0).getDate(),prevDays=new Date(calY,calM,0).getDate();
+  const ym=`${calY}-${String(calM+1).padStart(2,'0')}`;
+  const sales=aAll().filter(x=>x.date.startsWith(ym)),evs=cevents.filter(e=>(e.date||'').startsWith(ym));
+  const by={},put=(d,k,v)=>{(by[d]||(by[d]={sale:[],ret:[],ad:[]}))[k].push(v)};
+  sales.forEach(x=>put(x.date,'sale',x));evs.forEach(e=>put(e.date,e.type==='ad'?'ad':'ret',e));
+  const td=today();
+  let h=['일','월','화','수','목','금','토'].map((w,i)=>`<div class="dow${i===0?' sun':i===6?' sat':''}">${w}</div>`).join('');
+  for(let i=0;i<start;i++)h+=`<div class="day out"><span class="dn">${prevDays-start+1+i}</span></div>`;
+  for(let d=1;d<=days;d++){
+    const ds=ymd(calY,calM,d),b=by[ds],wd=(start+d-1)%7;let c='';
+    if(b){
+      if(b.sale.length){const p=b.sale.reduce((s,x)=>s+x.profit,0);c+=`<span class="cchip sale" title="판매 ${b.sale.length}건 · 순이익 ${fmt(p)}원">판매 ${b.sale.length} · ${sgn(p)}</span>`}
+      if(b.ret.length){const p=b.ret.reduce((s,e)=>s+cRetPL(e),0);c+=`<span class="cchip ret" title="반품 ${b.ret.length}건 · 손익 ${fmt(p)}원">반품 ${b.ret.length} · ${fmt(p)}</span>`}
+      if(b.ad.length){const p=b.ad.reduce((s,e)=>s+num(e.paid),0),f=b.ad.reduce((s,e)=>s+num(e.free),0);c+=`<span class="cchip ad" title="광고비 결제 ${fmt(p)}원${f?` · 무상 ${fmt(f)}원`:''}">광고 ${fmt(p)}</span>`}
+    }
+    h+=`<div class="day${ds===td?' today':''}${wd===0?' sun':wd===6?' sat':''}" data-d="${ds}"><span class="dn">${d}</span>${c}</div>`;
+  }
+  const tail=(7-(start+days)%7)%7;for(let i=1;i<=tail;i++)h+=`<div class="day out"><span class="dn">${i}</span></div>`;
+  el.innerHTML=h;
+  // 이번 달 합계
+  const rets=evs.filter(e=>e.type!=='ad'),ads=evs.filter(e=>e.type==='ad');
+  const sp=sales.reduce((s,x)=>s+x.profit,0),rp=rets.reduce((s,e)=>s+cRetPL(e),0),ap=ads.reduce((s,e)=>s+num(e.paid),0),av=ads.reduce((s,e)=>s+cVat(e),0),af=ads.reduce((s,e)=>s+num(e.free),0),fin=sp+rp-(ap-av);
+  const ng=v=>v<0?'neg':'',sub=t=>`<div class="muted" style="font-size:13px;font-weight:600;margin-top:4px">${t}</div>`;
+  $('#calKpis').innerHTML=[
+    ['판매 순이익',`<span class="${ng(sp)}">${fmt(sp)}</span>`+sub(`${sales.length}건 · 장부 기준`)],
+    ['반품 손익',`<span class="${ng(rp)}">${fmt(rp)}</span>`+sub(`${rets.length}건`)],
+    ['광고비 결제',fmt(ap)+sub(`${ads.length}회${af?` · 무상 ${fmt(af)}원 별도`:''}`)],
+    ['광고비 부가세 공제','+'+fmt(av)+sub('결제액 × 10/110')],
+    ['광고 실부담',fmt(ap-av)+sub('결제액 − 부가세 공제')],
+    [`${calM+1}월 실제 순이익`,`<span class="${ng(fin)}">${fmt(fin)}</span>`+sub('판매 + 반품 − 광고 실부담'),1]
+  ].map(([l,v,hl])=>`<div class="kpi${hl?' hl':''}"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  if($('#dlgDay').open)dayRender($('#dlgDay').dataset.d);
+}
+$('#calPrev').onclick=()=>{if(--calM<0){calM=11;calY--}calRender()};
+$('#calNext').onclick=()=>{if(++calM>11){calM=0;calY++}calRender()};
+$('#calToday').onclick=()=>{const d=new Date();calY=d.getFullYear();calM=d.getMonth();calRender()};
+const calDefDate=()=>{const t=today();return t.startsWith(`${calY}-${String(calM+1).padStart(2,'0')}`)?t:ymd(calY,calM,1)};
+$('#calRet').onclick=()=>evOpen('ret',null,calDefDate());
+$('#calAd').onclick=()=>evOpen('ad',null,calDefDate());
+$('#calGrid').addEventListener('click',e=>{const c=e.target.closest('.day[data-d]');if(c)dayOpen(c.dataset.d)});
+
+/* 날짜 상세 */
+const dlgDay=$('#dlgDay');
+function dayOpen(ds){dlgDay.dataset.d=ds;dayRender(ds);dlgDay.showModal()}
+function dayRender(ds){
+  const [y,m,d]=ds.split('-'),wd='일월화수목금토'[new Date(+y,+m-1,+d).getDay()];
+  $('#dayTitle').textContent=`${+m}월 ${+d}일 (${wd})`;
+  const {sale,ev}=calDay(ds);
+  const it=[...sale.map(x=>`<div class="ditem" data-kind="sale" data-src="${x.src}" data-id="${x.id}"><span class="src-tag ${x.src}">${x.src==='smart'?'스마트스토어':'BUYMA'}</span><span class="t" title="${esc(x.product)}">${esc(x.product||x.orderNo||'')}</span><span class="v ${x.profit<0?'neg':''}">${sgn(x.profit)}원</span></div>`),
+    ...ev.map(e=>e.type==='ad'
+      ?`<div class="ditem" data-kind="ev" data-id="${e.id}"><span class="k">광고비</span><span class="t">${esc(e.channel||'광고')}${num(e.free)?` <span class="muted">· 무상 ${fmt(num(e.free))}원</span>`:''}</span><span class="v">−${fmt(num(e.paid))}원</span></div>`
+      :`<div class="ditem" data-kind="ev" data-id="${e.id}"><span class="k" style="color:var(--warn)">반품</span><span class="t" title="${esc(e.product)}">${esc(e.product||'반품')} <span class="muted">· ${esc(e.stockStatus||'')}</span></span><span class="v ${cRetPL(e)<0?'neg':''}">${sgn(cRetPL(e))}원</span></div>`)];
+  $('#dayList').innerHTML=it.length?it.join(''):'<div class="dempty">이 날짜에는 아직 기록이 없어요. 아래 버튼으로 추가하세요.</div>';
+}
+$('#dayList').addEventListener('click',e=>{const t=e.target.closest('.ditem');if(!t)return;dlgDay.close();
+  if(t.dataset.kind==='sale'){const isS=t.dataset.src==='smart',r=(isS?rows:brows).find(x=>x.id===t.dataset.id);if(r)isS?openForm(r):bOpen(r)}
+  else{const ev=cevents.find(x=>x.id===t.dataset.id);if(ev)evOpen(ev.type,ev)}});
+$$('[data-dclose]').forEach(b=>b.onclick=()=>dlgDay.close());
+$('#dayS').onclick=()=>{const ds=dlgDay.dataset.d;dlgDay.close();openForm();frm.orderDate.value=ds;frm.payDate.value=ds};
+$('#dayB').onclick=()=>{const ds=dlgDay.dataset.d;dlgDay.close();bOpen();bFrm.orderDate.value=ds};
+$('#dayRet').onclick=()=>{const ds=dlgDay.dataset.d;dlgDay.close();evOpen('ret',null,ds)};
+$('#dayAd').onclick=()=>{const ds=dlgDay.dataset.d;dlgDay.close();evOpen('ad',null,ds)};
+
+/* 반품·광고비 입력 */
+const dlgEv=$('#dlgEv'),evFrm=$('#evFrm'),EVM=['retFee','refund','cost','stock','paid','free'];
+let evId=null,evType='ret';
+function evOpen(type,e,date){
+  evType=e?.type||type;evId=e?.id||null;evFrm.reset();
+  $('#evTitle').textContent=(evType==='ad'?'광고비 충전':'반품')+(e?' 수정':' 기록');
+  $$('#evFrm [data-for]').forEach(f=>{const on=f.dataset.for===evType;f.hidden=!on;f.querySelectorAll('input,select').forEach(i=>i.disabled=!on)});
+  if(evType==='ret'){
+    const opts=aAll().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,300);
+    evFrm.orderRef.innerHTML='<option value="">선택 안 함 (직접 입력)</option>'+opts.map(x=>`<option value="${x.src}:${x.id}">${esc(x.date)} · ${x.src==='smart'?'스마트':'BUYMA'} · ${esc(x.orderNo||'')} · ${esc(String(x.product||'').slice(0,28))}</option>`).join('');
+  }
+  const d=e||{date:date||today(),channel:'네이버 광고',stockStatus:'보관'};
+  for(const el of evFrm.elements){if(!el.name||el.disabled)continue;el.value=EVM.includes(el.name)?(num(d[el.name])?fmt(num(d[el.name])):''):(d[el.name]??'')}
+  if(evType==='ret'&&d.orderRef&&!evFrm.orderRef.value)evFrm.orderRef.insertAdjacentHTML('beforeend',`<option value="${esc(d.orderRef)}" selected>${esc(d.orderNo||'기존 주문')}</option>`);
+  evFrm.refund.dataset.manual=e?'1':'';
+  $('#evDel').hidden=!e;evCalc();dlgEv.showModal();
+}
+function evRef(){const v=evFrm.orderRef.value;if(!v)return null;const [src,id]=v.split(':');return aAll().find(x=>x.src===src&&x.id===id)||null}
+function evAutoRefund(){if(evType!=='ret'||evFrm.refund.dataset.manual==='1')return;const x=evRef();if(x)evFrm.refund.value=fmt(Math.max(0,x.sale-num(evFrm.retFee.value)))}
+function evCalc(){
+  const v=k=>num(evFrm[k]?.value);let h='';
+  if(evType==='ad'){const p=v('paid'),vt=Math.round(p*10/110);
+    h=`<div><div class="l">결제액</div><div class="v">${fmt(p)}원</div></div><div><div class="l">부가세 공제</div><div class="v">+${fmt(vt)}원</div></div><div><div class="l">실부담 (손익 반영)</div><div class="v neg">−${fmt(p-vt)}원</div></div>
+      <div class="formula">일반과세자: 결제액 ${fmt(p)} × 10/110 = 부가세 ${fmt(vt)}원 공제${v('free')?` · 무상 비즈머니 ${fmt(v('free'))}원은 손익에 넣지 않아요`:''}</div>`}
+  else{const pl=-v('refund')-v('cost')+v('stock'),x=evRef();
+    h=`<div><div class="l">환불액</div><div class="v">−${fmt(v('refund'))}원</div></div><div><div class="l">회수 재고 가치</div><div class="v">+${fmt(v('stock'))}원</div></div><div><div class="l">반품 손익</div><div class="v ${pl<0?'neg':''}">${sgn(pl)}원</div></div>
+      <div class="formula">− 환불 ${fmt(v('refund'))} − 처리비용 ${fmt(v('cost'))} + 재고 ${fmt(v('stock'))} = <b>${fmt(pl)}원</b>${x?` · 원래 주문 결제액 ${fmt(x.sale)}원, 순이익 ${fmt(x.profit)}원`:''}</div>`}
+  $('#evCalc').innerHTML=h;
+  const tg=$('#evRefundTag');if(tg){const man=evFrm.refund.dataset.manual==='1';tg.className='auto-tag '+(man?'man':'auto');tg.textContent=man?'직접 입력':(evRef()?'결제액 − 반품배송비':'')}
+}
+evFrm.addEventListener('input',e=>{
+  if(e.target.classList.contains('money')){const el=e.target,raw=el.value.replace(/[^\d-]/g,'');el.value=raw===''||raw==='-'?raw:Number(raw).toLocaleString('ko-KR')}
+  if(e.target.name==='refund')e.target.dataset.manual=e.target.value.trim()?'1':'';
+  if(e.target.name==='retFee')evAutoRefund();
+  evCalc();
+});
+evFrm.orderRef.addEventListener('change',()=>{const x=evRef();if(x&&!evFrm.product.value.trim())evFrm.product.value=x.product||'';evAutoRefund();evCalc()});
+evFrm.addEventListener('submit',e=>{
+  e.preventDefault();
+  const d={type:evType};for(const el of evFrm.elements){if(!el.name||el.disabled)continue;d[el.name]=EVM.includes(el.name)?num(el.value):el.value.trim()}
+  if(evType==='ret'){const x=evRef();if(x){d.src=x.src;d.orderNo=x.orderNo||''}}
+  if(evId){const i=cevents.findIndex(x=>x.id===evId);cevents[i]={...cevents[i],...d}}
+  else cevents.push({id:crypto.randomUUID?crypto.randomUUID():Date.now()+''+Math.random(),createdAt:new Date().toISOString(),...d});
+  const [y,m]=d.date.split('-');calY=+y;calM=+m-1;
+  cSave();dlgEv.close();toast(evType==='ad'?'광고비 충전을 기록했어요':'반품을 기록했어요');
+});
+$('#evDel').onclick=()=>{if(confirm('이 기록을 삭제할까요? 되돌릴 수 없습니다.')){cevents=cevents.filter(x=>x.id!==evId);cSave();dlgEv.close()}};
+$$('[data-eclose]').forEach(b=>b.onclick=()=>dlgEv.close());
+window.calReady=true; calRender();
+
+/* ---------- 플랫폼 전환 ---------- */
+function setPlat(p){PLAT=p;document.body.dataset.plat=p;$$('.plat-btn').forEach(b=>b.classList.toggle('on',b.dataset.plat===p));try{localStorage.setItem('gmdh-platform',p)}catch(e){}
+  if(p==='all')setApp('ledger');
+  else{const a=document.body.dataset.app;setApp(a==='items'||a==='calc'?a:(()=>{try{const s=localStorage.getItem('gmdh-app');return s==='calc'?'calc':'items'}catch(e){return'items'}})())}
+  $('#itQ').value='';renderItems();if(p==='all')aRender();}
+$$('.plat-btn').forEach(b=>b.onclick=()=>setPlat(b.dataset.plat));
+
+/* ---------- 저장파일(.json) 자동 저장 ---------- */
+const FS_OK='showSaveFilePicker' in window;
+var fileHandle=null, fileState='none';
+let  fileTimer=null, fileSavedAt=null;
+const idb=(mode,fn)=>new Promise((res,rej)=>{const o=indexedDB.open('gmdh',1);o.onupgradeneeded=()=>o.result.createObjectStore('kv');
+  o.onsuccess=()=>{try{const tx=o.result.transaction('kv',mode),st=tx.objectStore('kv'),r=fn(st);tx.oncomplete=()=>res(r&&r.result);tx.onerror=()=>rej(tx.error)}catch(e){rej(e)}};o.onerror=()=>rej(o.error)});
+const idbGet=k=>idb('readonly',st=>st.get(k)), idbSet=(k,v)=>idb('readwrite',st=>st.put(v,k)), idbDel=k=>idb('readwrite',st=>st.delete(k));
+const snapshot=()=>({app:'구매대행장부',version:1,savedAt:new Date().toISOString(),meta,rows,calc:mc,items,bitems,bcalc:bc,brows,cal:cevents});
+function chip(){
+  if(window.fileState==='ok')$('#lastBackup').textContent='';
+  const c=$('#fileChip'); if(!FS_OK){c.hidden=true;return}
+  c.className='filechip'+(fileState==='ok'?' ok':fileState==='reconnect'?' warn':'');
+  c.textContent=fileState==='ok'?`💾 ${fileHandle.name} 자동저장${fileSavedAt?' · '+fileSavedAt:''}`:fileState==='reconnect'?`💾 ${fileHandle.name} 다시 연결`:'💾 저장파일 연결';
+  c.title=fileState==='ok'?'클릭하면 다른 저장파일로 바꿀 수 있습니다':'';
+}
+async function writeFile(){
+  if(fileState!=='ok')return;
+  try{const w=await fileHandle.createWritable();await w.write(JSON.stringify(snapshot(),null,1));await w.close();
+    fileSavedAt=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});meta.backupAt=Date.now();try{localStorage.setItem(MKEY,JSON.stringify(meta))}catch(e){}}
+  catch(e){fileState='reconnect';warn('저장파일에 쓰지 못했습니다. 상단의 "다시 연결"을 눌러 주세요.')}
+  chip();
+}
+window.scheduleFileSave=()=>{if(fileState!=='ok')return;clearTimeout(fileTimer);fileTimer=setTimeout(writeFile,400)};
+function applyData(d){
+  rows=Array.isArray(d.rows)?d.rows:[]; meta={name:'내 장부',source:'직접 입력',...(d.meta||{})}; mc={...MDEF,...(d.calc||{})};
+  try{localStorage.setItem(KEY,JSON.stringify(rows));localStorage.setItem(MKEY,JSON.stringify(meta));localStorage.setItem(MKEY2,JSON.stringify(mc))}catch(e){}
+  if(Array.isArray(d.items)){items=migItems(d.items);try{localStorage.setItem(IKEY,JSON.stringify(items))}catch(e){}}
+  if(Array.isArray(d.brows)){brows=d.brows;try{localStorage.setItem(BRKEY,JSON.stringify(brows))}catch(e){}bRender()}
+  if(Array.isArray(d.cal)){cevents=d.cal;try{localStorage.setItem(CKEY,JSON.stringify(cevents))}catch(e){}calRender()}
+  if(Array.isArray(d.bitems)){bitems=d.bitems;try{localStorage.setItem(BIKEY,JSON.stringify(bitems))}catch(e){}}
+  if(d.bcalc){bc={...BDEF,...d.bcalc,biz:'general'};bc.dutyOn=dutyAuto(bc.sale);try{localStorage.setItem(BKEY2,JSON.stringify(bc))}catch(e){}bFill();bCalc()}
+  mFill();mCalc();render();renderItems();
+}
+async function attach(h,isNew){
+  fileHandle=h;
+  let d=null;
+  if(!isNew){try{const t=await (await h.getFile()).text();d=t.trim()?JSON.parse(t):null}catch(e){alert('저장파일을 읽지 못했습니다: '+e.message);return}}
+  const fileHas=d&&Array.isArray(d.rows);
+  if(fileHas){
+    const localNewer=rows.length&&(meta.changedAt||0)>Date.parse(d.savedAt||0);
+    const differs=JSON.stringify(d.rows)!==JSON.stringify(rows);
+    if(localNewer&&differs&&confirm(`이 브라우저의 장부(${rows.length}건)가 저장파일(${d.rows.length}건, ${new Date(d.savedAt).toLocaleString('ko-KR')} 저장)보다 최근에 수정됐습니다.\n\n[확인] 브라우저 내용으로 저장파일 덮어쓰기\n[취소] 저장파일 내용 불러오기`)){}
+    else applyData(d);
+  }
+  fileState='ok'; try{await idbSet('fileHandle',h)}catch(e){}
+  await writeFile(); toast(`${h.name}에 연결했습니다`);
+}
+const dlgF=$('#dlgFile');
+$$('[data-fclose]').forEach(b=>b.onclick=()=>dlgF.close());
+$('#fNew').onclick=async()=>{try{const h=await showSaveFilePicker({suggestedName:'구매대행_savedata.json',types:[{description:'구매대행 장부 저장파일',accept:{'application/json':['.json']}}]});dlgF.close();await attach(h,true)}catch(e){if(e.name!=='AbortError')alert(e.message)}};
+$('#fOpen').onclick=async()=>{try{const [h]=await showOpenFilePicker({types:[{description:'구매대행 장부 저장파일',accept:{'application/json':['.json']}}]});
+  if((await h.requestPermission({mode:'readwrite'}))!=='granted')return alert('파일 쓰기 권한이 필요합니다.');dlgF.close();await attach(h,false)}catch(e){if(e.name!=='AbortError')alert(e.message)}};
+$('#fileChip').onclick=async()=>{
+  if(fileState==='reconnect'){try{if((await fileHandle.requestPermission({mode:'readwrite'}))==='granted'){await attach(fileHandle,false);$('#notice').classList.remove('show')}}catch(e){fileState='none';fileHandle=null;chip();dlgF.showModal()}return}
+  dlgF.showModal();
+};
+(async()=>{
+  if(!FS_OK){chip();return}
+  try{const h=await idbGet('fileHandle');
+    if(h){fileHandle=h;const p=await h.queryPermission({mode:'readwrite'});
+      if(p==='granted')await attach(h,false);else fileState='reconnect'}}catch(e){}
+  chip();
+})();
+
+/* ---------- 저장 버튼 (Ctrl+S) ---------- */
+async function saveNow(){
+  if(!FS_OK){ // 파일 연결을 지원하지 않는 브라우저 → JSON 다운로드
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(snapshot(),null,1)],{type:'application/json'}));
+    a.download=`구매대행_savedata_${today()}.json`;a.click();toast('저장파일을 다운로드했어요');return}
+  if(fileState==='ok'){clearTimeout(fileTimer);await writeFile();if(fileState==='ok')toast(`💾 ${fileHandle.name}에 저장했어요`);return}
+  if(fileState==='reconnect'&&fileHandle){try{if((await fileHandle.requestPermission({mode:'readwrite'}))==='granted'){await attach(fileHandle,false);$('#notice').classList.remove('show');return}}catch(e){}}
+  dlgF.showModal();
+}
+$('#btnSave').onclick=saveNow;
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveNow()}});
+
+/* ---------- 불러오기 ---------- */
+function confirmLoad(d,fname){
+  if(!d||(!Array.isArray(d.rows)&&!Array.isArray(d.items)&&!Array.isArray(d.brows))){alert('구매대행 장부 저장파일이 아닙니다.');return false}
+  const nr=(d.rows||[]).length, ni=(d.items||[]).length+(d.bitems||[]).length;
+  return confirm(`${fname} 을(를) 불러올까요?\n\n파일: 장부 ${nr}건 · BUYMA 장부 ${(d.brows||[]).length}건 · 판매 리스트 ${ni}개${d.savedAt?` (${new Date(d.savedAt).toLocaleString('ko-KR')} 저장)`:''}\n지금: 장부 ${rows.length}건 · BUYMA 장부 ${brows.length}건 · 판매 리스트 ${items.length+bitems.length}개\n\n지금 화면의 내용은 파일 내용으로 바뀝니다.`);
+}
+async function loadNow(){
+  if(!('showOpenFilePicker' in window)){$('#loadFile').click();return}
+  try{
+    const [h]=await showOpenFilePicker({types:[{description:'구매대행 장부 저장파일',accept:{'application/json':['.json']}}]});
+    let d;try{d=JSON.parse(await (await h.getFile()).text())}catch(e){return alert('파일을 읽지 못했습니다: '+e.message)}
+    if(!confirmLoad(d,h.name))return;
+    applyData(d);
+    // 불러온 파일을 저장파일로 연결 (이후 자동 저장)
+    if((await h.requestPermission({mode:'readwrite'}))==='granted'){fileHandle=h;fileState='ok';try{await idbSet('fileHandle',h)}catch(e){}chip();$('#notice').classList.remove('show')}
+    toast(`📂 ${h.name}을(를) 불러왔어요`);
+  }catch(e){if(e.name!=='AbortError')alert(e.message)}
+}
+$('#btnLoad').onclick=loadNow;
+$('#loadFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  let d;try{d=JSON.parse(await f.text())}catch(err){return alert('파일을 읽지 못했습니다: '+err.message)}
+  if(!confirmLoad(d,f.name))return; applyData(d); toast(`📂 ${f.name}을(를) 불러왔어요`)};
+
+render();
+(()=>{let a=null;try{a=localStorage.getItem('gmdh-app')}catch(e){}
+  if(!a||a==='ledger'){PLAT='all';try{localStorage.setItem('gmdh-app','items')}catch(e){}} // 예전 '구매대행 장부' 화면 → 전체 판매 장부로
+  document.body.dataset.app=a==='calc'?'calc':'items';setPlat(PLAT)})();
+</script>
+</body>
+</html>
