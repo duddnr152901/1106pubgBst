@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>PUBG: 배틀그라운드 X 피카플레이 PC방 부스팅 이벤트</title>
+<link rel="icon" type="image/png" href="assets/images/faviconV2.png">
+<link rel="apple-touch-icon" href="assets/images/faviconV2.png">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="PICA PC방에서 단 3일! PUBG: 배틀그라운드를 플레이하고 일일·누적 미션 보상을 모두 획득하세요!">
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="피카플레이">
+<meta property="og:title" content="PUBG: 배틀그라운드 X 피카플레이 PC방 부스팅 이벤트">
+<meta property="og:description" content="PICA PC방에서 단 3일! PUBG: 배틀그라운드를 플레이하고 일일·누적 미션 보상을 모두 획득하세요!">
+<meta property="og:url" content="https://ics.mediaweb.co.kr/_event/20261106_pubgBst/teaser.html">
+<meta property="og:image" content="https://ics.mediaweb.co.kr/_event/20261106_pubgBst/assets/Thumbnail_800x400_teaser.jpg">
+<meta property="og:image:alt" content="PUBG: 배틀그라운드 X 피카플레이 PC방 부스팅 이벤트">
+
+<!-- Twitter / X 카드 -->
+ <meta name="twitter:url" content="https://ics.mediaweb.co.kr/_event/20261106_pubgBst/teaser.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PUBG: 배틀그라운드 X 피카플레이 PC방 부스팅 이벤트">
+<meta name="twitter:description" content="PICA PC방에서 단 3일! PUBG: 배틀그라운드를 플레이하고 일일·누적 미션 보상을 모두 획득하세요!">
+<meta name="twitter:image" content="https://ics.mediaweb.co.kr/_event/20261106_pubgBst/assets/Thumbnail_1200x630_teaser.jpg">
+<meta name="twitter:image:alt" content="PUBG: 배틀그라운드 X 피카플레이 PC방 부스팅 이벤트">
+
+<!-- 폰트 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@noonnu/vitro-core@0.1.0/index.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<!-- 스타일 (CSS 파일 대신 페이지에 직접 포함) -->
+<style>
+/* 기본 */
+html{scrollbar-width:none;-ms-overflow-style:none;}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0;}
+html,body{margin:0;padding:0;background:#1a1219;color:#fff;font-family:"Pretendard Variable",Pretendard,"Malgun Gothic",sans-serif;overflow-x:clip;}
+*{box-sizing:border-box;}
+h2,h3,p{margin:0;}
+a{color:#ff6fb5;text-decoration:none;}
+a:hover{color:#ffd2e8;}
+@keyframes kvReveal{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+@keyframes kvTitleSweep{0%{transform:translateX(90%);}60%{transform:translateX(-90%);}100%{transform:translateX(-90%);}}
+@keyframes cueBob{0%{transform:translateY(0);opacity:.35;}50%{transform:translateY(9px);opacity:1;}100%{transform:translateY(0);opacity:.35;}}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-1.2%);}}
+@keyframes bobSlow{0%,100%{transform:translateY(0) rotate(-.4deg);}50%{transform:translateY(-2%) rotate(.4deg);}}
+@keyframes explPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+@keyframes m2BikeDrift{0%,100%{transform:translate(0,0) rotate(0deg);}50%{transform:translate(-6px,-4px) rotate(-.6deg);}}
+@keyframes auraBreath{0%,100%{transform:scale(1);opacity:.92;}50%{transform:scale(1.05);opacity:1;}}
+@keyframes itemFloatA{0%,100%{transform:perspective(900px) rotateX(0deg) rotateY(-6deg) rotateZ(-2deg) translateY(0);}50%{transform:perspective(900px) rotateX(5deg) rotateY(6deg) rotateZ(-1deg) translateY(-12px);}}
+@keyframes itemFloatB{0%,100%{transform:perspective(900px) rotateX(3deg) rotateY(6deg) rotateZ(2deg) translateY(-8px);}50%{transform:perspective(900px) rotateX(-4deg) rotateY(-6deg) rotateZ(1deg) translateY(4px);}}
+@keyframes glowPulse{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.94);}50%{opacity:.9;transform:translate(-50%,-50%) scale(1.08);}}
+@keyframes headBlink{0%,100%{opacity:.15;transform:scale(.85);}45%,55%{opacity:1;transform:scale(1.08);}}
+@keyframes sunGlow{0%,100%{opacity:.75;}50%{opacity:1;}}
+@keyframes shareModalIn{from{transform:translateY(12px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;}}
+
+/* 호버 */
+.hv1:hover{color:#fff !important;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3)) brightness(1.12) !important;transform:translateY(-2px) !important;}
+.hv2:hover{background:#f0f0f0 !important;}
+.hv3:hover{background:#f5f5f7 !important;}
+.hv4:hover{background:#f5f5f7 !important;}
+.hv5:hover{background:#f5f5f7 !important;}
+.hv6:hover{background:#f5f5f7 !important;}
+.hv7:hover{background:#f5f5f7 !important;}
+.hv8:hover{background:#f5f5f7 !important;}
+
+/* 헤더 */
+#top{position:fixed;top:0;left:0;right:0;z-index:1000;width:100%;height:80px;background:linear-gradient(90deg,#000 0%,#060712 100%);box-shadow:inset 0 -1px 0 rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;}
+#hdrInner{max-width:1440px;width:100%;padding:0 40px;display:flex;align-items:center;justify-content:center;gap:48px;}
+#hdrWrap{display:flex;align-items:center;gap:24px;}
+#pcRoomToggle{display:inline-flex;align-items:center;justify-content:center;width:112px;height:44px;padding:0;border:none;background:none;cursor:pointer;flex-shrink:0;}
+#pcRoomToggleImg{display:block;width:100%;height:100%;object-fit:contain;}
+#hdrNotice{font-size:clamp(14px,1.25vw,18px);color:#fff;line-height:1.5;white-space:nowrap;}
+a.hdr-btn{color:#469CFF;}
+#btnShare{display:flex;align-items:center;justify-content:center;gap:6px;background:#fff;border:none;border-radius:50px;padding:10px 16px;height:46px;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;font-size:15px;font-weight:600;color:#111;}
+
+/* 키비주얼 */
+#zone{position:relative;height:calc(210vh + 600px);}
+#zoneSticky{position:sticky;top:0;height:100vh;overflow:hidden;background:#f4d6e4;}
+#kv{position:absolute;inset:80px 0 0 0;z-index:1;overflow:hidden;background:#f4d6e4;}
+.kv-box{position:absolute;inset:0;}
+/* 패럴랙스·스크롤 줌 레이어: 래스터 배율 고정 → 스크롤 중 매 프레임 다시 그리지 않음(빈 분홍 화면 방지) */
+[data-kv-layer]{will-change:transform;}
+.kv-bg{position:absolute;inset:-2%;width:104%;height:104%;object-fit:cover;object-position:center bottom;display:block;}
+#kvMoBg{display:none;position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;}
+#kvStage{position:absolute;left:50%;top:50%;width:max(100vw,calc((100vh - 80px) * 1.7778));height:max(56.25vw,calc(100vh - 80px));transform:translate(-50%,-50%);}
+.kv-aura-big{position:absolute;left:30%;top:20%;width:40%;transform-origin:50% 70%;animation:auraBreath 5s ease-in-out infinite;}
+.kv-aura-rise{position:absolute;left:33%;top:16%;width:34%;transform-origin:50% 90%;animation:auraBreath 6s ease-in-out -2s infinite;}
+.kv-aura{position:absolute;left:35%;top:22%;width:46%;opacity:.9;}
+/* 1106 수정 :S — 뒤 폭발(불) 움직임 끔 (원래: animation:explPulse 8s ease-in-out infinite) */
+.kv-explosion{position:absolute;left:24%;top:42%;width:12%;transform-origin:50% 50%;}
+/* 1106 수정 :E */
+.kv-supply{position:absolute;left:31%;top:32.3%;width:7.2%;animation:bobSlow 7s ease-in-out infinite;}
+.kv-bike-f{scale:0.79;position:absolute;left:0.7%;top:33%;width:48.6%;}
+.kv-bike-m{position:absolute;left:63.4%;top:45%;width:21%;}
+.kv-flyer{scale:0.87;position:absolute;left:60.6%;top:25.5%;width:7.6%;}
+.kv-car{position:absolute;left:26.8%;top:43.2%;width:59.4%;}
+#carSparks{position:absolute;left:8.98%;top:20.6%;width:95.04%;aspect-ratio:5310/3791;pointer-events:none;display:block;}
+.kv-car-2{position:absolute;left:26.8%;top:43.2%;width:59.4%;aspect-ratio:5310/3791;pointer-events:none;}
+.kv-deco{position:absolute;left:38.3%;top:57.7%;width:16%;aspect-ratio:1;transform:translate(-50%,-50%);display:block;}
+.kv-em{display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(220,235,255,.6) 18%,rgba(190,215,255,.22) 42%,rgba(190,215,255,0) 70%);mix-blend-mode:screen;animation:headBlink 3.2s ease-in-out infinite;}
+.kv-deco-2{position:absolute;left:76%;top:39%;width:14%;aspect-ratio:1;transform:translate(-50%,-50%);display:block;}
+.kv-deco-3{position:absolute;left:51.1%;top:60%;width:10%;aspect-ratio:1;transform:translate(-50%,-50%);display:block;}
+.kv-deco-4{position:absolute;left:67.9%;top:51.6%;width:10%;aspect-ratio:1;transform:translate(-50%,-50%);display:block;}
+.kv-dust{position:absolute;left:15.7%;bottom:-2%;width:78%;}
+.kv-flower-r-blur{position:absolute;left:82.73%;bottom:-6%;width:24.27%;}
+.kv-flower-l2{position:absolute;left:1%;bottom:-5%;width:19%;}
+.kv-flower-l-blur{position:absolute;left:-5%;bottom:-6%;width:25%;}
+.kv-sun-glow{position:absolute;z-index:25;left:30%;top:60%;width:42%;aspect-ratio:1.3;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,214,60,1) 0%,rgba(255,200,50,.7) 30%,rgba(255,190,60,.25) 55%,rgba(255,190,60,0) 72%);mix-blend-mode:soft-light;pointer-events:none;animation:sunGlow 6s ease-in-out infinite;}
+#kvMist{position:absolute;left:0;right:0;bottom:0;height:55%;width:100%;z-index:20;display:block;pointer-events:none;opacity:.9;}
+.kv-logo{position:absolute;z-index:8;left:clamp(18px,2.6vw,48px);top:clamp(14px,3vh,32px);width:clamp(84px,9vw,170px);height:auto;}
+.kv-title-group{position:absolute;z-index:8;left:0;right:0;top:clamp(40px,5vh,64px);display:flex;flex-direction:column;align-items:center;gap:clamp(10px,1.6vh,18px);pointer-events:none;padding:0 5vw;}
+.kv-box-2{position:absolute;left:50%;top:-12%;width:min(1400px,120vw);height:124%;transform:translateX(-50%);background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,255,255,.7) 0%,rgba(255,255,255,.45) 38%,rgba(255,255,255,.15) 62%,rgba(255,255,255,0) 78%);filter:blur(14px);pointer-events:none;z-index:-1;}
+#kvBrandRow{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:clamp(8px,.75vw,14px);margin-bottom:clamp(-26px,-1.4vw,-10px);}
+.kv-img{display:block;height:clamp(52px,5vw,90px);width:auto;aspect-ratio:1944/992;margin-right:clamp(-20px,-1vw,-8px);}
+.kv-img-2{display:block;height:clamp(28px,2.4vw,44px);width:auto;aspect-ratio:2954/2843;}
+.kv-pica-logo{display:block;height:clamp(30px,2.6vw,48px);width:auto;aspect-ratio:534.6/181.3;}
+#kvMainTitle{position:relative;z-index:1;width:min(max(min(80vw,420px),33.5vw),670px);aspect-ratio:1431/539;isolation:isolate;}
+#kvMainTitle .kv-title{filter:drop-shadow(0 0 1.5px #fff4f9) drop-shadow(0 0 1.5px #fff4f9) drop-shadow(0 0 14px rgba(255,255,255,.95)) drop-shadow(0 0 40px rgba(255,255,255,.6)) drop-shadow(0 8px 28px rgba(120,20,70,.2));}
+.kv-title{display:block;width:100%;height:100%;}
+.kv-box-3{position:absolute;inset:0;overflow:hidden;-webkit-mask-image:url(assets/images/title-set2.webp);-webkit-mask-size:100% 100%;mask-image:url(assets/images/title-set2.webp);mask-size:100% 100%;mix-blend-mode:overlay;opacity:.7;pointer-events:none;}
+.kv-box-3::before{content:"";position:absolute;top:0;bottom:0;left:0;width:250%;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.95) 50%,transparent 65%);animation:kvTitleSweep 3s ease-in-out infinite;will-change:transform;}
+#kvSubCopy{position:relative;z-index:2;font-size:20px;font-weight:600;color:#111;text-align:center;text-wrap:pretty;word-break:keep-all;-webkit-text-stroke:4px #fff;paint-order:stroke fill;text-shadow:0 0 4px #fff,0 0 10px #fff,0 0 22px rgba(255,255,255,.85);}
+.kv-txt-2{color:#6e0f40;}
+#kvSubBr{display:none;}
+#kvDatePc{position:relative;z-index:2;padding:clamp(8px,1.2vh,12px) clamp(20px,2.6vw,32px);font-size:clamp(14px,1.1vw,18px);font-weight:600;color:#ffeef6;position:relative;isolation:isolate;background:rgba(26,18,25,.78);border:1px solid rgba(255,111,181,.55);border-radius:0;clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px);text-align:center;}
+.kv-txt-3{position:absolute;top:0;bottom:0;left:0;width:20%;z-index:-1;pointer-events:none;opacity:.55;background:url(assets/images/date-dots4.webp) left center/auto 100% no-repeat;-webkit-mask-image:linear-gradient(to right,#000 25%,transparent 100%);mask-image:linear-gradient(to right,#000 25%,transparent 100%);}
+.kv-txt-4{position:absolute;top:0;bottom:0;right:0;width:20%;z-index:-1;pointer-events:none;opacity:.55;background:url(assets/images/date-dots4.webp) left center/auto 100% no-repeat;-webkit-mask-image:linear-gradient(to right,#000 25%,transparent 100%);mask-image:linear-gradient(to right,#000 25%,transparent 100%);transform:scaleX(-1);}
+#kvDateMo{position:relative;z-index:2;display:none;flex-direction:column;gap:5px;width:min(80vw,300px);}
+.kv-box-4{display:flex;justify-content:center;align-items:center;gap:10px;padding:8px 12px;background:rgba(26,18,25,.82);border:1px solid rgba(255,111,181,.55);}
+.kv-txt-5{font-size:12.5px;font-weight:400;color:#ff6fb5;}
+.kv-txt-6{font-size:13.5px;font-weight:400;color:#fff;}
+
+.kv-txt-7{font-size:11px;letter-spacing:.28em;color:rgba(255,255,255,.8);}
+.kv-deco-5{display:block;width:1px;height:34px;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,0));animation:cueBob 2.2s ease-in-out infinite;}
+
+/* 미션 01 (일일 플레이) */
+
+#kvSakura{position:absolute;inset:0;width:100%;height:100%;z-index:2;display:block;pointer-events:none;filter:blur(.6px);}
+
+#totalReward{padding:1px;background:#e8288c;clip-path:polygon(18px 0,calc(100% - 18px) 0,100% 18px,100% calc(100% - 18px),calc(100% - 18px) 100%,18px 100%,0 calc(100% - 18px),0 18px);}
+
+#smoke{position:absolute;inset:0;z-index:3;width:100%;height:100%;pointer-events:none;}
+
+/* 미션 02 (누적 플레이) */
+#sec2Web{position:absolute;z-index:-1;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 78%,rgba(0,0,0,.6) 100%),url(assets/images/sec2-bg-web4.webp) center top/cover no-repeat;pointer-events:none;}
+
+#couponSteps{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px;}
+
+/* 참여 방법 */
+
+/* 마일리지 사용처 */
+
+/* 유의사항 */
+
+/* 공유 모달 */
+#shareModal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:2100;padding:20px;}
+.share-box{background:#fff;border-radius:20px;padding:32px 24px 28px;width:100%;max-width:420px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.35);animation:shareModalIn .18s ease-out;}
+.share-btn{position:absolute;top:10px;right:10px;width:36px;height:36px;border:none;background:transparent;cursor:pointer;font-size:26px;color:#555;line-height:1;border-radius:50%;}
+.share-title{color:#111;font-size:20px;font-weight:800;text-align:center;margin-bottom:24px;letter-spacing:-.02em;}
+.share-box-2{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.share-btn-2{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 4px;background:transparent;border:none;cursor:pointer;border-radius:12px;font-family:inherit;}
+.share-txt{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#FEE500;color:#181600;}
+.share-txt-2{font-size:13px;font-weight:600;color:#333;}
+.share-txt-3{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#1877F2;color:#fff;}
+.share-txt-4{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;}
+.share-txt-5{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#03C75A;color:#fff;}
+.share-txt-6{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#feda75 0%,#fa7e1e 25%,#d62976 50%,#962fbf 75%,#4f5bd5 100%);color:#fff;}
+.share-txt-7{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2c2c32;color:#fff;}
+
+/* 토스트 */
+.toast{position:fixed;left:50%;top:92px;transform:translate(-50%,12px);background:#fff;color:#111;font-size:18px;font-weight:700;padding:14px 22px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);opacity:0;pointer-events:none;z-index:2000;transition:opacity .2s ease, transform .2s ease;white-space:nowrap;}
+
+/* 모바일 플로팅 버튼 */
+#mobileFab{display:none;position:fixed;right:16px;bottom:max(20px,env(safe-area-inset-bottom,0px));z-index:1800;flex-direction:column;align-items:center;gap:10px;}
+.fab-btn{width:52px;height:52px;border:none;border-radius:50%;background:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,.28);cursor:pointer;padding:0;}
+.fab-img{width:24px;height:24px;}
+.fab-btn-2{width:52px;height:52px;border:none;border-radius:50%;background:#f0f0f2;color:#111;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,.28);cursor:pointer;padding:0;font-family:inherit;font-size:13px;font-weight:800;}
+
+/* 티저 (teaser.html) */
+#kvStart{position:relative;z-index:2;font-family:'Vitro_core','Black Han Sans',sans-serif;font-size:clamp(30px,2.6vw,48px);line-height:1;letter-spacing:.04em;color:#e8288c;-webkit-text-stroke:5px #fff;paint-order:stroke fill;text-shadow:0 0 14px rgba(255,255,255,.9),0 6px 20px rgba(120,20,70,.25);}
+.teaser #kv::after{content:"";position:absolute;inset:0;z-index:30;background:rgba(0,0,0,.5);pointer-events:none;}
+.teaser .kv-title-group{z-index:31;top:38%;transform:translateY(-50%);gap:clamp(18px,3vh,34px);}
+.teaser .kv-box-2{opacity:.3;}
+.teaser #kvMainTitle .kv-title{filter:drop-shadow(0 0 2.5px #fff) drop-shadow(0 0 7px rgba(255,255,255,.9)) drop-shadow(0 0 16px rgba(255,255,255,.5));}
+.teaser .kv-img,.teaser .kv-img-2{filter:brightness(0) invert(1);}
+.teaser #kvSubCopy{color:#fff;-webkit-text-stroke:0;text-shadow:0 2px 8px rgba(0,0,0,.5);}
+.teaser #kvStart{display:inline-flex;align-items:center;justify-content:center;width:clamp(216px,17vw,320px);aspect-ratio:668/170;margin-bottom:clamp(-18px,-1.6vh,-8px);font-size:clamp(22px,1.8vw,33px);letter-spacing:.03em;color:#fff;-webkit-text-stroke:0;isolation:isolate;text-shadow:0 2px 6px rgba(0,0,0,.55);}
+/* 배지 이미지만 어둡게(글자는 그대로) — 투명한 모서리까지 덮지 않도록 오버레이 대신 밝기 필터 */
+.teaser #kvStart::before{content:"";position:absolute;inset:0;z-index:-1;background:url(assets/images/cta.webp) center/100% 100% no-repeat;filter:brightness(.68) drop-shadow(0 0 2.5px #fff) drop-shadow(0 0 7px rgba(255,255,255,.9)) drop-shadow(0 0 16px rgba(255,255,255,.5));}
+.teaser .teaser-em{font-weight:inherit;color:#ff6fb5;}
+/* 티저 PC 정보: index와 같은 "PICA 마일리지 최대 39,000M" 평행사변형 상자 (기존 어두운 상자 스타일 해제) */
+.teaser #kvDatePc{padding:0;background:none;border:0;clip-path:none;isolation:auto;filter:drop-shadow(0 0 2px rgba(255,255,255,.8)) drop-shadow(0 0 8px rgba(255,255,255,.45));}
+.kv-hl-band{--sl:clamp(20px,1.6vw,30px);--bw:3px;position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;gap:.35em;padding:clamp(10px,1.3vh,16px) calc(var(--sl) + clamp(22px,2vw,38px));background:#ff2d8e;clip-path:polygon(var(--sl) 0,100% 0,calc(100% - var(--sl)) 100%,0 100%);}
+.kv-hl-band::before{content:"";position:absolute;inset:0 calc(var(--bw) * 1.6);z-index:-1;background:radial-gradient(ellipse 50% 90% at center,rgba(0,0,0,.3) 0%,rgba(0,0,0,0) 100%),linear-gradient(90deg,rgba(255,45,142,.46) 0%,rgba(255,45,142,0) 12%,rgba(255,45,142,0) 88%,rgba(255,45,142,.46) 100%),linear-gradient(90deg,#3a0a22 0%,#4b0f31 50%,#3a0a22 100%);clip-path:polygon(var(--sl) 0,100% 0,calc(100% - var(--sl)) 100%,0 100%);}
+/* 상자 금속 스크래치 텍스처 (텍스쳐셈.jpg를 띠 모양으로 잘라 흑백·경량화). overlay로 자주색 위에 긁힌 질감만 얹음 */
+.kv-hl-band::after{content:"";position:absolute;inset:0 calc(var(--bw) * 1.6);z-index:-1;background:url(assets/images/kv/box-texture.webp) center/cover no-repeat;mix-blend-mode:overlay;opacity:.75;pointer-events:none;clip-path:polygon(var(--sl) 0,100% 0,calc(100% - var(--sl)) 100%,0 100%);}
+.kv-hl-pre,.kv-hl-num{display:block;font-family:'Pretendard',sans-serif;font-weight:900;line-height:1;letter-spacing:-.01em;}
+/* 상자 양옆 >> 아이콘 (오른쪽은 좌우 반전해서 가운데를 향하게) */
+.kv-hl-arrow{display:block;flex:none;width:clamp(15px,1.15vw,22px);height:auto;aspect-ratio:1;fill:#fff;stroke:#fff;stroke-width:40;stroke-linejoin:round;overflow:visible;opacity:.3;margin-right:.4em;}
+.kv-hl-arrow-r{margin-right:0;margin-left:.4em;transform:scaleX(-1);}
+/* 화살표가 가운데(최대 39,000M) 쪽으로 톡톡 밀려 들어오며 밝아짐 → 시선 유도 */
+@keyframes kvHlNudgeL{0%,100%{translate:0 0;opacity:.3;}45%{translate:.35em 0;opacity:.6;}}
+@keyframes kvHlNudgeR{0%,100%{translate:0 0;opacity:.3;}45%{translate:-.35em 0;opacity:.6;}}
+.kv-hl-arrow{animation:kvHlNudgeL 1.2s cubic-bezier(.45,0,.25,1) infinite;}
+.kv-hl-arrow-r{animation-name:kvHlNudgeR;}
+@media (prefers-reduced-motion:reduce){.kv-hl-arrow{animation:none;}}
+.kv-hl-pre{font-size:clamp(18px,1.45vw,28px);color:#fff;}
+.kv-hl-num{font-size:clamp(22px,1.9vw,36px);background:linear-gradient(180deg,#ffd0e8 10%,#ff5aa8 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));padding-right:.08em;}
+.teaser #kvDateMo .kv-txt-6{font-size:15px;}
+.teaser #kvBrandRow{margin-bottom:0;left:-.4vw;}
+.teaser #kvSubCopy{position:absolute;z-index:31;left:50%;bottom:clamp(24px,7vh,72px);transform:translateX(-50%);white-space:nowrap;padding:.5em 1.6em;border:1.5px solid #d93d8a;background:rgba(75,15,49,.6);}
+.teaser .kv-img{height:clamp(42px,4vw,72px);margin-right:clamp(-16px,-.8vw,-6px);}
+.teaser .kv-img-2{height:clamp(22px,1.9vw,35px);}
+.teaser .kv-pica-logo{height:clamp(24px,2.1vw,38px);}
+.teaser #kvMainTitle{aspect-ratio:1380/528;width:min(max(min(86vw,480px),40vw),800px);}
+.teaser .kv-box-3{-webkit-mask-image:url(assets/images/teaser-title.webp);mask-image:url(assets/images/teaser-title.webp);}
+/* 티저 타이틀 뒤 흰 딤 */
+.teaser .teaser-title-wrap{position:relative;z-index:1;}
+.teaser .teaser-title-dim{position:absolute;inset:-14% -10%;background:radial-gradient(ellipse at center,rgba(255,255,255,.42) 0%,rgba(255,255,255,.25) 45%,rgba(255,255,255,0) 72%);filter:blur(10px);pointer-events:none;}
+/* 숫자 롤링(오도미터): 글자마다 그라디언트를 직접 입힘(변형 레이어에선 부모 background-clip:text가 안 먹음) */
+
+/* 티저 등장 애니메이션 (teaser.js가 .t-in을 순서대로 붙임). 기존 transform과 겹치지 않도록 translate/scale 개별 속성 사용 */
+.teaser [data-t-in]{transition:opacity 1.1s cubic-bezier(.33,0,.2,1),translate 1.3s cubic-bezier(.22,1,.36,1),scale 1.4s cubic-bezier(.22,1,.36,1);}
+.teaser.t-anim [data-t-in]:not(.t-in){opacity:0;}
+.teaser.t-anim #kvBrandRow:not(.t-in){translate:0 -16px;}
+.teaser.t-anim #kvStart:not(.t-in){translate:0 -36px;}
+.teaser.t-anim .teaser-title-wrap:not(.t-in){scale:1.08;}
+.teaser.t-anim #kvDatePc:not(.t-in),.teaser.t-anim #kvDateMo:not(.t-in){translate:0 18px;}
+.teaser.t-anim #kvSubCopy:not(.t-in){translate:0 10px;}
+/* 굴러가기 전엔 쉼표·M도 숨김 → 롤링 시작과 함께 나타남 */
+/* 티저 PC 로고: index와 같은 좌표 (teaser.js가 PC에서 로고 줄을 KV 바로 아래로 옮김. top·폭·높이는 index의 타이틀 묶음 기준과 동일 공식) */
+@media (min-width:1025px){
+.teaser #kv > #kvBrandRow{position:absolute;z-index:31;top:clamp(40px,5vh,64px);left:50%;transform:translateX(-50%);width:min(calc(100% - 10vw),58vw);height:clamp(52px,5vw,90px);margin:0;}
+.teaser #kvBrandRow .kv-img-2{display:none;}
+.teaser #kvBrandRow .kv-img,.teaser #kvBrandRow .kv-pica-logo{position:absolute;top:50%;translate:0 calc(-50% - clamp(28px,3.7vh,46px));}
+.teaser #kvBrandRow .kv-img{left:0;height:clamp(52px,4.4vw,84px);margin-right:0;}
+.teaser #kvBrandRow .kv-pica-logo{right:0;height:clamp(30px,2.5vw,48px);}
+}
+</style>
+
+<!-- KV 첫 화면 이미지: CSS/JS를 기다리지 않고 바로 받아두기 위한 preload (PC는 와이드 배경, 모바일은 세로 배경) -->
+<link rel="preload" href="assets/images/kv/bg.webp" as="image" media="(min-width: 1025px)">
+<link rel="preload" href="assets/images/kv/bgMo2.webp" as="image" media="(max-width: 1024px)">
+<link rel="preload" href="assets/images/teaser-title.webp" as="image">
+<!-- 카카오톡 공유 SDK — assets/js/main.js의 SHARE_CONFIG.kakaoKey에 JavaScript 키를 넣어야 동작함 -->
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" crossorigin="anonymous"></script>
+</head>
+<body class="teaser t-anim">
+<!-- ===== 공통 헤더 (PC방 토글 + 공지 + 공유하기) ===== -->
+<header id="top">
+  <div id="hdrInner">
+    <div id="hdrWrap">
+      <!-- PC방 토글 — main.js의 window.setPcRoomToggleState(true/false)가 이미지를 교체 (백엔드 연동용) -->
+      <button id="pcRoomToggle" type="button" data-state="off" aria-label="PC방 모드 토글">
+        <img id="pcRoomToggleImg" src="assets/images/off=off.webp" alt="PC방 모드 OFF">
+      </button>
+      <p id="hdrNotice">본 이벤트는 <a class="hdr-btn" href="https://picaplay.com/pcbang/main.do" target="_blank" rel="noopener noreferrer"><u>피카플레이 가맹 PC방</u></a>에서 참여 가능합니다.</p>
+    </div>
+    <button id="btnShare" type="button" aria-label="공유하기" data-on-click="openShare">
+      <img src="assets/images/share_icon.svg" alt="">
+      <span>공유하기</span>
+    </button>
+  </div>
+</header>
+
+<!-- ===== KV (사전 홍보: 한 화면, 스크롤 전환 없음) ===== -->
+<div id="zone">
+  <div id="zoneSticky">
+
+    <div id="kv">
+      <div class="kv-box" data-kv-layer="" data-dir="1" data-depth="1" data-zoom="0.1">
+        <img class="kv-bg" data-layer="bg" src="assets/images/kv/bg.webp" alt="">
+
+      </div>
+      <img id="kvMoBg" data-layer="bgMo" src="assets/images/kv/bgMo2.webp" alt="PUBG: 배틀그라운드 X 피카플레이 PC방 부스팅 이벤트">
+      <div id="kvStage">
+
+
+        <div class="kv-box" data-kv-layer="" data-depth="3" data-zoom="0.05">
+          <div class="kv-box" data-intro="">
+            <img class="kv-aura-big" data-layer="aura-big" src="assets/images/kv/aura-big.webp" alt="">
+            <img class="kv-aura-rise" data-layer="aura-rise" src="assets/images/kv/aura-rise.webp" alt="">
+            <img class="kv-aura" data-layer="aura" src="assets/images/kv/aura.webp" alt="">
+          </div>
+        </div>
+
+        <div class="kv-box" data-kv-layer="" data-depth="0" data-zoom="0.05">
+          <div class="kv-box" data-intro="">
+            <img class="kv-explosion" data-layer="explosion" src="assets/images/kv/explosion.webp" alt="">
+          </div>
+        </div>
+
+        <div class="kv-box" data-kv-layer="" data-depth="1.5" data-zoom="0.02">
+          <div class="kv-box" data-intro="">
+            <img class="kv-supply" data-layer="supply" src="assets/images/kv/supply.webp" alt="">
+          </div>
+        </div>
+
+        <div class="kv-box" data-kv-layer="" data-depth="1" data-zoom="0.07">
+          <div class="kv-box" data-intro="">
+            <img class="kv-bike-f" data-layer="bike-f" src="assets/images/kv/bike-f.webp" alt="">
+          </div>
+        </div>
+
+        <div class="kv-box" data-kv-layer="" data-dir="1" data-depth="2" data-zoom="0.07">
+          <div class="kv-box" data-intro="">
+            <img class="kv-bike-m" data-layer="bike-m" src="assets/images/kv/bike-m2.webp" alt="">
+          </div>
+        </div>
+
+        <div class="kv-box" data-kv-layer="" data-depth="1" data-zoom="0.08">
+          <img class="kv-flyer" data-layer="flyer" src="assets/images/kv/flyer.webp" alt="">
+        </div>
+
+        <div class="kv-box" data-kv-layer="" data-dir="-1" data-depth="3" data-zoom="0.09">
+          <div class="kv-box" data-intro="">
+            <img class="kv-car" data-layer="car" src="assets/images/kv/car2.webp" alt="PUBG: 배틀그라운드 캐릭터">
+            <canvas id="carSparks" data-layer="car" aria-hidden="true"></canvas>
+            <div class="kv-car-2" data-layer="car" aria-hidden="true">
+              <i class="kv-deco"><b class="kv-em"></b></i>
+              <i class="kv-deco-2"><b class="kv-em"></b></i>
+              <i class="kv-deco-3"><b class="kv-em"></b></i>
+              <i class="kv-deco-4"><b class="kv-em"></b></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="kv-box" data-kv-layer="" data-dir="-1" data-depth="3" data-zoom="0.09">
+          <div class="kv-box" data-intro="">
+            <img class="kv-dust" data-layer="dust" src="assets/images/kv/dust.webp" alt="">
+          </div>
+        </div>
+
+        <div class="kv-box" data-kv-layer="" data-dir="1" data-depth="16" data-zoom="0.18">
+          <div class="kv-box" data-intro="">
+            <img class="kv-flower-r-blur" data-layer="flower-r-blur" src="assets/images/kv/flower-r-blur.webp" alt="">
+          </div>
+        </div>
+
+        <div class="kv-box" data-kv-layer="" data-dir="1" data-depth="16" data-zoom="0.18">
+          <div class="kv-box" data-intro="">
+            <img class="kv-flower-l2" data-layer="flower-l2" src="assets/images/kv/flower-l2.webp" alt="">
+            <img class="kv-flower-l-blur" data-layer="flower-l-blur" src="assets/images/kv/flower-l-blur.webp" alt="">
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="kv-sun-glow" data-layer="sun-glow" aria-hidden="true"></div>
+      <canvas id="kvMist"></canvas>
+
+      <img class="kv-logo" data-layer="logo" src="assets/images/pubg-logo.webp" alt="PUBG: BATTLEGROUNDS">
+
+      <div class="kv-title-group" data-layer="title-group">
+        <div class="kv-box-2" aria-hidden="true"></div>
+        <div id="kvBrandRow" data-t-in="0">
+          <img class="kv-img" src="assets/images/pubg-logo-mark.svg" alt="PUBG: BATTLEGROUNDS">
+          <img class="kv-img-2" src="assets/images/x-mark.webp" alt="" aria-hidden="true">
+          <img class="kv-pica-logo" src="assets/images/pica-play-logo.svg" alt="피카플레이">
+        </div>
+        <p id="kvStart" data-t-in="1">11.6(금) START</p>
+        <div class="teaser-title-wrap" data-t-in="2">
+          <div class="teaser-title-dim" aria-hidden="true"></div>
+          <div id="kvMainTitle">
+            <img class="kv-title" data-layer="title" src="assets/images/teaser-title.webp" alt="단 3일, 역대급 배그 PC방 부스트가 시작됩니다">
+            <div class="kv-box-3" data-layer-mask="title"></div>
+          </div>
+        </div>
+        <div id="kvDatePc" data-t-in="3"><div class="kv-hl-band"><svg class="kv-hl-arrow" viewBox="0 -960 960 960" aria-hidden="true"><path d="m242-200 200-280-200-280h98l200 280-200 280h-98Zm238 0 200-280-200-280h98l200 280-200 280h-98Z"/></svg><span class="kv-hl-pre">최대</span><b class="kv-hl-num">39,000M</b><span class="kv-hl-pre">+ 특별 PUBG 인게임 아이템</span><svg class="kv-hl-arrow kv-hl-arrow-r" viewBox="0 -960 960 960" aria-hidden="true"><path d="m242-200 200-280-200-280h98l200 280-200 280h-98Zm238 0 200-280-200-280h98l200 280-200 280h-98Z"/></svg></div></div>
+        <div id="kvDateMo" data-t-in="3"><div class="kv-box-4"><span class="kv-txt-6"><b class="teaser-em">최대 39,000M</b> + 특별 PUBG 인게임 아이템</span></div></div>
+      </div>
+      <p id="kvSubCopy" data-t-in="4">11월 6일부터 참여 가능합니다</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 공유 모달 · 복사 토스트 · 모바일 플로팅 버튼 ===== -->
+<div id="shareModal" role="dialog" aria-modal="true" aria-label="공유하기" data-on-click="onModalBackdrop" data-style-tpl="display:{{ shareDisplay }};">
+  <div class="share-box">
+    <button class="hv2 share-btn" type="button" aria-label="닫기" data-on-click="closeShare">×</button>
+    <h2 class="share-title">공유하기</h2>
+    <div class="share-box-2">
+      <button class="hv3 share-btn-2" type="button" data-on-click="shareKakao">
+        <span class="share-txt"><svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 3C6.48 3 2 6.58 2 11c0 2.830 1.86 5.32 4.66 6.73L5.5 21.5l4.2-2.47c.76.11 1.54.17 2.3.17 5.52 0 10-3.58 10-8S17.52 3 12 3z"></path></svg></span>
+        <span class="share-txt-2">카카오톡</span>
+      </button>
+      <button class="hv4 share-btn-2" type="button" data-on-click="shareFacebook">
+        <span class="share-txt-3"><svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.5-.1-2.4 0-4.1 1.5-4.100 4.2v2.3H7.5v3.1h2.6V21h3.4z"></path></svg></span>
+        <span class="share-txt-2">페이스북</span>
+      </button>
+      <button class="hv5 share-btn-2" type="button" data-on-click="shareTwitter">
+        <span class="share-txt-4"><svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"></path></svg></span>
+        <span class="share-txt-2">트위터</span>
+      </button>
+      <button class="hv6 share-btn-2" type="button" data-on-click="shareNaver">
+        <span class="share-txt-5"><svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M13.91 12.03 9.94 6H6v12h4.09v-6.03L14.06 18H18V6h-4.09z"></path></svg></span>
+        <span class="share-txt-2">네이버블로그</span>
+      </button>
+      <button class="hv7 share-btn-2" type="button" data-on-click="shareInstagram">
+        <span class="share-txt-6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor"></circle></svg></span>
+        <span class="share-txt-2">인스타그램</span>
+      </button>
+      <button class="hv8 share-btn-2" type="button" data-on-click="shareCopy">
+        <span class="share-txt-7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></span>
+        <span class="share-txt-2">URL 복사</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" role="status" aria-live="polite" data-style-tpl="transform:{{ toastTransform }};opacity:{{ toastOpacity }};"><span data-text="toastMsg"></span></div>
+
+<div id="mobileFab" role="group" aria-label="모바일 플로팅 버튼">
+  <button class="fab-btn" type="button" aria-label="공유하기" data-on-click="openShare"><img class="fab-img" src="assets/images/share_icon.svg" alt=""></button>
+</div>
+
+<!-- 벚꽃 파티클 / 메인 스크립트(레이아웃·KV 연출·공유·PC방 토글) -->
+<script src="assets/js/sakura.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="assets/js/teaser.js"></script>
+</body>
+</html>
